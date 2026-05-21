@@ -1,0 +1,67 @@
+<% layout('../layouts/base') %>
+<% const p = it.project %>
+
+<article>
+  <div class="container">
+    <header class="detail-header">
+      <a href="/projects" class="section-link" style="margin-bottom: var(--space-4); display: inline-flex">&larr; All Projects</a>
+      <h1><%= p.title %></h1>
+      <p class="hero__sub"><%= p.summary %></p>
+
+      <div class="cluster" style="margin-top: var(--space-4)">
+        <% p.tech_stack.forEach(t => { %><tech-badge><%= t %></tech-badge><% }) %>
+        <span class="card__status"><%= p.status %></span>
+      </div>
+
+      <div class="cluster" style="margin-top: var(--space-6)">
+        <% if (p.live_url) { %><a href="<%= p.live_url %>" class="btn btn--primary" target="_blank" rel="noopener">View Live</a><% } %>
+        <% if (p.repo_url) { %><a href="<%= p.repo_url %>" class="btn btn--ghost" target="_blank" rel="noopener">Source Code</a><% } %>
+      </div>
+    </header>
+
+    <% if (p.thumbnail_url) { %>
+    <img src="<%= p.thumbnail_url %>" alt="<%= p.title %> screenshot" class="detail-hero-img">
+    <% } %>
+
+    <div class="detail-body">
+      <% if (p.description) { %>
+      <section>
+        <h2>About</h2>
+        <p><%= p.description %></p>
+      </section>
+      <% } %>
+
+      <% if (p.features && p.features.length > 0) { %>
+      <section>
+        <h2>Features</h2>
+        <ul>
+          <% p.features.forEach(f => { %><li><%= f %></li><% }) %>
+        </ul>
+      </section>
+      <% } %>
+
+      <% if (p.challenges) { %>
+      <section>
+        <h2>Challenges</h2>
+        <p><%= p.challenges %></p>
+      </section>
+      <% } %>
+
+      <% if (p.solutions) { %>
+      <section>
+        <h2>Solutions</h2>
+        <p><%= p.solutions %></p>
+      </section>
+      <% } %>
+    </div>
+  </div>
+</article>
+
+<style>
+  .detail-header { padding-top: var(--space-8); margin-bottom: var(--space-8); }
+  .detail-header h1 { margin-block: var(--space-4); }
+  .detail-hero-img { width: 100%; border-radius: var(--radius-lg); margin-bottom: var(--space-12); }
+  .detail-body { display: flex; flex-direction: column; gap: var(--space-12); max-width: 48rem; }
+  .detail-body section h2 { margin-bottom: var(--space-3); }
+  .detail-body ul { padding-left: var(--space-6); display: flex; flex-direction: column; gap: var(--space-2); }
+</style>

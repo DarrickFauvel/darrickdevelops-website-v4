@@ -1,0 +1,42 @@
+<% layout('../layouts/base') %>
+
+<section>
+  <div class="container">
+    <h1 class="section-title">Frontend Mentor Challenges</h1>
+    <p class="section-subtitle">Challenge solutions with notes on approach and tech used.</p>
+
+    <% if (it.challenges.length === 0) { %>
+    <p style="margin-top: var(--space-8); color: var(--color-text-secondary)">Challenges coming soon.</p>
+    <% } else { %>
+    <div class="grid-auto" style="margin-top: var(--space-8)"
+         data-signals="{filterDiff: 'all'}">
+
+      <div style="grid-column: 1 / -1" class="cluster">
+        <% ['all','Newbie','Junior','Intermediate','Advanced','Guru'].forEach(d => { %>
+        <button class="btn btn--sm <%= d === 'all' ? 'btn--primary' : 'btn--ghost' %>"
+                data-on-click="$filterDiff = '<%= d %>'">
+          <%= d === 'all' ? 'All' : d %>
+        </button>
+        <% }) %>
+      </div>
+
+      <% it.challenges.forEach(c => { %>
+      <fm-card data-show="$filterDiff === 'all' || $filterDiff === '<%= c.difficulty %>'">
+        <div class="card__image-placeholder" aria-hidden="true"></div>
+        <div class="card__body">
+          <a href="/fm-challenges/<%= c.slug %>" class="card__title"><%= c.title %></a>
+          <div class="cluster" style="margin-top: var(--space-3)">
+            <span class="badge--<%= c.difficulty.toLowerCase() %>"><%= c.difficulty %></span>
+            <% c.tech_stack.forEach(t => { %><tech-badge><%= t %></tech-badge><% }) %>
+          </div>
+        </div>
+        <div class="card__footer">
+          <% if (c.solution_url) { %><a href="<%= c.solution_url %>" class="btn btn--sm btn--primary" target="_blank" rel="noopener">Solution</a><% } %>
+          <% if (c.repo_url) { %><a href="<%= c.repo_url %>" class="btn btn--sm btn--ghost" target="_blank" rel="noopener">Code</a><% } %>
+        </div>
+      </fm-card>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</section>

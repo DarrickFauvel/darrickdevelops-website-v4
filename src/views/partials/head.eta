@@ -1,0 +1,26 @@
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= it.title ?? 'Darrick Develops' %></title>
+  <meta name="description" content="<%= it.description ?? 'Portfolio of Darrick Fauvel — full-stack web developer.' %>">
+
+  <meta property="og:title"       content="<%= it.title ?? 'Darrick Develops' %>">
+  <meta property="og:description" content="<%= it.description ?? 'Portfolio of Darrick Fauvel.' %>">
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://darrickdevelops.com<%= it.path ?? '' %>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components/card.css">
+  <link rel="stylesheet" href="/css/components/badge.css">
+  <link rel="stylesheet" href="/css/components/button.css">
+  <link rel="stylesheet" href="/css/components/nav.css">
+  <link rel="stylesheet" href="/css/components/footer.css">
+  <link rel="stylesheet" href="/css/components/form.css">
+</head>

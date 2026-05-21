@@ -1,0 +1,67 @@
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text-primary);
+  }
+
+  h1 { font-size: var(--text-display); font-weight: 800; }
+  h2 { font-size: var(--text-h2); font-weight: 700; }
+  h3 { font-size: var(--text-xl); }
+
+  p {
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+  }
+
+  a {
+    color: var(--color-accent);
+    transition: color var(--ease-fast);
+  }
+
+  a:hover { color: var(--color-accent-hover); }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--color-border);
+    padding: 0.125em 0.375em;
+    border-radius: var(--radius-sm);
+  }
+
+  section { padding-block: var(--space-16); }
+
+  .section-header { margin-bottom: var(--space-8); }
+
+  .section-title {
+    font-size: var(--text-h2);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .section-subtitle {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: gap var(--ease-fast);
+  }
+
+  .section-link:hover { gap: var(--space-2); }
+}

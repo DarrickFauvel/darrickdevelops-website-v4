@@ -1,0 +1,210 @@
+<% layout('../layouts/base') %>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero__content">
+      <h1>Building the web<br>the right way.</h1>
+      <p class="hero__sub">Full-stack developer focused on semantic HTML, modern CSS, and real shipped products. No bloat. No frameworks for the sake of it.</p>
+      <div class="cluster">
+        <a href="/projects" class="btn btn--primary">View Projects</a>
+        <a href="#contact"  class="btn btn--ghost">Get in Touch</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Projects -->
+<section>
+  <div class="container">
+    <div class="split section-header">
+      <div>
+        <h2 class="section-title">Projects</h2>
+        <p class="section-subtitle">Things I've built from scratch.</p>
+      </div>
+      <a href="/projects" class="section-link">All projects &rarr;</a>
+    </div>
+
+    <div class="grid-auto">
+      <% it.projects.forEach(p => { %>
+      <project-card>
+        <div class="card__image-placeholder" aria-hidden="true"></div>
+        <div class="card__body">
+          <a href="/projects/<%= p.slug %>" class="card__title"><%= p.title %></a>
+          <p class="card__summary"><%= p.summary %></p>
+          <div class="cluster">
+            <% p.tech_stack.forEach(t => { %>
+            <tech-badge><%= t %></tech-badge>
+            <% }) %>
+          </div>
+        </div>
+        <div class="card__footer">
+          <span class="card__status"><%= p.status %></span>
+          <div class="cluster">
+            <% if (p.live_url) { %><a href="<%= p.live_url %>" class="btn btn--sm btn--primary" target="_blank" rel="noopener">Live</a><% } %>
+            <% if (p.repo_url) { %><a href="<%= p.repo_url %>" class="btn btn--sm btn--ghost" target="_blank" rel="noopener">Code</a><% } %>
+          </div>
+        </div>
+      </project-card>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<!-- Frontend Mentor -->
+<% if (it.challenges.length > 0) { %>
+<section>
+  <div class="container">
+    <div class="split section-header">
+      <div>
+        <h2 class="section-title">Frontend Mentor</h2>
+        <p class="section-subtitle">Curated challenge solutions.</p>
+      </div>
+      <a href="/fm-challenges" class="section-link">All challenges &rarr;</a>
+    </div>
+
+    <div class="grid-auto">
+      <% it.challenges.slice(0, 6).forEach(c => { %>
+      <fm-card>
+        <div class="card__image-placeholder" aria-hidden="true"></div>
+        <div class="card__body">
+          <a href="/fm-challenges/<%= c.slug %>" class="card__title"><%= c.title %></a>
+          <div class="cluster" style="margin-top: var(--space-3)">
+            <span class="badge--<%= c.difficulty.toLowerCase() %>"><%= c.difficulty %></span>
+            <% c.tech_stack.forEach(t => { %><tech-badge><%= t %></tech-badge><% }) %>
+          </div>
+        </div>
+        <div class="card__footer">
+          <% if (c.solution_url) { %><a href="<%= c.solution_url %>" class="btn btn--sm btn--primary" target="_blank" rel="noopener">Solution</a><% } %>
+          <% if (c.repo_url) { %><a href="<%= c.repo_url %>" class="btn btn--sm btn--ghost" target="_blank" rel="noopener">Code</a><% } %>
+        </div>
+      </fm-card>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<!-- Tech Stack -->
+<section class="stack-section">
+  <div class="container">
+    <h2 class="section-title">How I Build</h2>
+    <div class="grid-2" style="margin-top: var(--space-8)">
+      <div class="stack-group">
+        <h3>Frontend</h3>
+        <ul role="list" class="stack-list">
+          <li>Semantic HTML5</li>
+          <li>Modern CSS (cascade layers, container queries, custom properties)</li>
+          <li>Vanilla JavaScript</li>
+          <li>Datastar — SSE-driven reactivity</li>
+          <li>Native Web Components</li>
+        </ul>
+      </div>
+      <div class="stack-group">
+        <h3>Backend &amp; Data</h3>
+        <ul role="list" class="stack-list">
+          <li>Node.js LTS</li>
+          <li>Express.js with Server-Sent Events</li>
+          <li>Eta templating</li>
+          <li>Turso (LibSQL / edge SQLite)</li>
+          <li>Railway — persistent HTTP hosting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <h2 class="section-title">Get in Touch</h2>
+        <p class="section-subtitle">Have a project in mind or just want to say hi?</p>
+        <ul class="stack" style="margin-top: var(--space-6); list-style: none; padding: 0">
+          <li><a href="mailto:darrick@darrickdevelops.com">darrick@darrickdevelops.com</a></li>
+          <li><a href="https://github.com/darrickdevelops" target="_blank" rel="noopener">GitHub</a></li>
+          <li><a href="https://linkedin.com/in/darrickfauvel" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+      </div>
+
+      <contact-form>
+        <form
+          class="form"
+          data-signals="{contactName:'',contactEmail:'',contactSubject:'',contactMessage:''}"
+          data-on-submit__prevent="@post('/contact/submit')"
+        >
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="contactName">Name <span aria-hidden="true">*</span></label>
+              <input id="contactName" class="form-input" type="text" data-bind-contact-name required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contactEmail">Email <span aria-hidden="true">*</span></label>
+              <input id="contactEmail" class="form-input" type="email" data-bind-contact-email required autocomplete="email">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactSubject">Subject</label>
+            <input id="contactSubject" class="form-input" type="text" data-bind-contact-subject autocomplete="off">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contactMessage">Message <span aria-hidden="true">*</span></label>
+            <textarea id="contactMessage" class="form-textarea" data-bind-contact-message required rows="5"></textarea>
+          </div>
+          <div>
+            <button type="submit" class="btn btn--primary">Send Message</button>
+          </div>
+          <div id="contact-feedback" aria-live="polite"></div>
+        </form>
+      </contact-form>
+    </div>
+  </div>
+</section>
+
+<!-- Blog teaser -->
+<% if (it.posts.length > 0) { %>
+<section>
+  <div class="container">
+    <div class="split section-header">
+      <h2 class="section-title">Writing</h2>
+      <a href="/blog" class="section-link">All posts &rarr;</a>
+    </div>
+    <ul class="stack" role="list">
+      <% it.posts.forEach(post => { %>
+      <li>
+        <a href="/blog/<%= post.slug %>"><%= post.title %></a>
+        <% if (post.excerpt) { %><p><%= post.excerpt %></p><% } %>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+</section>
+<% } %>
+
+<style>
+  .hero {
+    padding-block: var(--space-32);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .hero__content { max-width: 44rem; }
+  .hero h1 { margin-bottom: var(--space-6); }
+  .hero__sub {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-8);
+  }
+  .stack-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    color: var(--color-text-secondary);
+  }
+  .stack-list li::before {
+    content: '— ';
+    color: var(--color-accent);
+  }
+</style>

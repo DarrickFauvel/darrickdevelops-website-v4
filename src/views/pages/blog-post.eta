@@ -1,0 +1,35 @@
+<% layout('../layouts/base') %>
+<% const post = it.post %>
+
+<article class="post">
+  <div class="container">
+    <header class="post__header">
+      <a href="/blog" class="section-link" style="margin-bottom: var(--space-4); display: inline-flex">&larr; All Posts</a>
+      <h1><%= post.title %></h1>
+      <% if (post.published_at) { %>
+      <time class="post__date" datetime="<%= post.published_at %>">
+        <%= new Date(post.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %>
+      </time>
+      <% } %>
+    </header>
+
+    <div class="post__body prose">
+      <%~ post.bodyHtml %>
+    </div>
+  </div>
+</article>
+
+<style>
+  .post { padding-block: var(--space-8) var(--space-24); }
+  .post__header { margin-bottom: var(--space-12); }
+  .post__header h1 { margin-block: var(--space-4); }
+  .post__date { font-size: var(--text-sm); color: var(--color-text-secondary); }
+  .post__body { max-width: 48rem; }
+
+  .prose h2, .prose h3 { margin-top: var(--space-8); margin-bottom: var(--space-3); }
+  .prose p  { margin-bottom: var(--space-4); }
+  .prose ul, .prose ol { padding-left: var(--space-6); margin-bottom: var(--space-4); }
+  .prose li { margin-bottom: var(--space-2); }
+  .prose pre { background: var(--color-border); padding: var(--space-4); border-radius: var(--radius-md); overflow-x: auto; margin-bottom: var(--space-4); }
+  .prose blockquote { border-left: 3px solid var(--color-accent); padding-left: var(--space-4); color: var(--color-text-secondary); margin-bottom: var(--space-4); }
+</style>

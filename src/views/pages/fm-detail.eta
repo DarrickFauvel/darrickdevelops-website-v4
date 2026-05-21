@@ -1,0 +1,42 @@
+<% layout('../layouts/base') %>
+<% const c = it.challenge %>
+
+<article>
+  <div class="container">
+    <header class="detail-header">
+      <a href="/fm-challenges" class="section-link" style="margin-bottom: var(--space-4); display: inline-flex">&larr; All Challenges</a>
+      <h1><%= c.title %></h1>
+
+      <div class="cluster" style="margin-top: var(--space-4)">
+        <span class="badge--<%= c.difficulty.toLowerCase() %>"><%= c.difficulty %></span>
+        <% c.tech_stack.forEach(t => { %><tech-badge><%= t %></tech-badge><% }) %>
+      </div>
+
+      <div class="cluster" style="margin-top: var(--space-6)">
+        <% if (c.solution_url) { %><a href="<%= c.solution_url %>" class="btn btn--primary" target="_blank" rel="noopener">View Solution</a><% } %>
+        <% if (c.repo_url) { %><a href="<%= c.repo_url %>" class="btn btn--ghost" target="_blank" rel="noopener">Source Code</a><% } %>
+        <% if (c.fm_url) { %><a href="<%= c.fm_url %>" class="btn btn--ghost" target="_blank" rel="noopener">Challenge Brief</a><% } %>
+      </div>
+    </header>
+
+    <% if (c.screenshot_url) { %>
+    <img src="<%= c.screenshot_url %>" alt="<%= c.title %> screenshot" class="detail-hero-img">
+    <% } %>
+
+    <% if (c.notes) { %>
+    <div class="detail-body">
+      <section>
+        <h2>Notes</h2>
+        <p><%= c.notes %></p>
+      </section>
+    </div>
+    <% } %>
+  </div>
+</article>
+
+<style>
+  .detail-header { padding-top: var(--space-8); margin-bottom: var(--space-8); }
+  .detail-header h1 { margin-block: var(--space-4); }
+  .detail-hero-img { width: 100%; border-radius: var(--radius-lg); margin-bottom: var(--space-12); }
+  .detail-body { max-width: 48rem; }
+</style>
