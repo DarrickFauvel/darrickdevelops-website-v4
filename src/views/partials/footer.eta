@@ -1,0 +1,12 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__inner">
+      <p class="footer__copy">&copy; <%= new Date().getFullYear() %> Darrick Fauvel. Built with Node.js, Datastar &amp; Turso.</p>
+      <ul class="footer__links" role="list">
+        <li><a href="https://github.com/darrickdevelops" class="footer__link" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://linkedin.com/in/darrickfauvel" class="footer__link" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="mailto:darrick@darrickdevelops.com" class="footer__link">Email</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

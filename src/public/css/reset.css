@@ -1,0 +1,40 @@
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    hanging-punctuation: first last;
+  }
+
+  body {
+    min-height: 100dvh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  input, button, textarea, select { font: inherit; }
+
+  h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    text-wrap: balance;
+  }
+
+  p, li { text-wrap: pretty; overflow-wrap: break-word; }
+
+  ul[role="list"], ol[role="list"] { list-style: none; padding: 0; }
+
+  a { color: inherit; text-decoration-skip-ink: auto; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
