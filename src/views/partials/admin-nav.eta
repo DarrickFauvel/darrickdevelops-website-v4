@@ -1,0 +1,34 @@
+<nav class="admin-nav" aria-label="Admin navigation">
+  <ul role="list">
+    <li>
+      <a href="/admin" class="admin-nav__link<% if (it.activeNav === 'dashboard') { %> admin-nav__link--active<% } %>"
+         <% if (it.activeNav === 'dashboard') { %>aria-current="page"<% } %>>
+        Dashboard
+      </a>
+    </li>
+    <li>
+      <a href="/admin/projects" class="admin-nav__link<% if (it.activeNav === 'projects') { %> admin-nav__link--active<% } %>"
+         <% if (it.activeNav === 'projects') { %>aria-current="page"<% } %>>
+        Projects
+      </a>
+    </li>
+    <li>
+      <a href="/admin/fm-challenges" class="admin-nav__link<% if (it.activeNav === 'fm-challenges') { %> admin-nav__link--active<% } %>"
+         <% if (it.activeNav === 'fm-challenges') { %>aria-current="page"<% } %>>
+        FM Challenges
+      </a>
+    </li>
+    <li>
+      <a href="/admin/blog" class="admin-nav__link<% if (it.activeNav === 'blog') { %> admin-nav__link--active<% } %>"
+         <% if (it.activeNav === 'blog') { %>aria-current="page"<% } %>>
+        Blog
+      </a>
+    </li>
+    <li>
+      <a href="/admin/contact" class="admin-nav__link<% if (it.activeNav === 'contact') { %> admin-nav__link--active<% } %>"
+         <% if (it.activeNav === 'contact') { %>aria-current="page"<% } %>>
+        Contact
+      </a>
+    </li>
+  </ul>
+</nav>

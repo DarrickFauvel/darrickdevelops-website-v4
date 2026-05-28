@@ -30,3 +30,11 @@ export async function getProjectBySlug(slug) {
   });
   return rows[0] ? parse(rows[0]) : null;
 }
+
+export async function getProjectById(id) {
+  const { rows } = await db.execute({
+    sql:  'SELECT * FROM projects WHERE id = ?',
+    args: [id],
+  });
+  return rows[0] ? parse(rows[0]) : null;
+}

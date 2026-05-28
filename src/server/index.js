@@ -8,6 +8,7 @@ import projectsRouter from './routes/projects.js';
 import fmRouter from './routes/fm-challenges.js';
 import blogRouter from './routes/blog.js';
 import contactRouter from './routes/contact.js';
+import adminRouter from './routes/admin/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -22,5 +23,6 @@ app.use('/projects', projectsRouter);
 app.use('/fm-challenges', fmRouter);
 app.use('/blog', blogRouter);
 app.use('/contact', contactRouter);
+app.use('/admin', adminRouter);
 
 app.listen(PORT, () => console.log(`http://localhost:${PORT}`));

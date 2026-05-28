@@ -1,0 +1,90 @@
+<% layout('../../../layouts/admin') %>
+
+<form
+  method="POST"
+  action="<%= it.isEdit ? `/admin/fm-challenges/${it.challenge.id}` : '/admin/fm-challenges' %>"
+  class="form admin-form"
+>
+  <div class="form-row">
+    <div class="form-group">
+      <label for="title" class="form-label">Title <span aria-hidden="true">*</span></label>
+      <input id="title" name="title" type="text" class="form-input" required
+        value="<%= it.challenge?.title ?? '' %>">
+    </div>
+    <div class="form-group">
+      <label for="slug" class="form-label">Slug <span class="form-label-hint">(auto-generated if blank)</span></label>
+      <input id="slug" name="slug" type="text" class="form-input"
+        value="<%= it.challenge?.slug ?? '' %>" pattern="[a-z0-9-]+"
+        placeholder="my-challenge-name">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="difficulty" class="form-label">Difficulty</label>
+      <select id="difficulty" name="difficulty" class="form-input">
+        <% const difficulties = ['Newbie','Junior','Intermediate','Advanced','Guru']; difficulties.forEach(d => { %>
+        <option value="<%= d %>" <%= (it.challenge?.difficulty ?? 'Newbie') === d ? 'selected' : '' %>><%= d %></option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="completed_at" class="form-label">Completed Date</label>
+      <input id="completed_at" name="completed_at" type="date" class="form-input"
+        value="<%= it.challenge?.completed_at?.slice(0, 10) ?? '' %>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="tech_stack" class="form-label">Tech Stack <span class="form-label-hint">(comma-separated)</span></label>
+    <input id="tech_stack" name="tech_stack" type="text" class="form-input"
+      value="<%= it.challenge?.tech_stack?.join(', ') ?? '' %>"
+      placeholder="HTML, CSS, JavaScript">
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="solution_url" class="form-label">Solution URL</label>
+      <input id="solution_url" name="solution_url" type="url" class="form-input"
+        value="<%= it.challenge?.solution_url ?? '' %>">
+    </div>
+    <div class="form-group">
+      <label for="repo_url" class="form-label">Repo URL</label>
+      <input id="repo_url" name="repo_url" type="url" class="form-input"
+        value="<%= it.challenge?.repo_url ?? '' %>">
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="fm_url" class="form-label">Frontend Mentor URL</label>
+      <input id="fm_url" name="fm_url" type="url" class="form-input"
+        value="<%= it.challenge?.fm_url ?? '' %>">
+    </div>
+    <div class="form-group">
+      <label for="screenshot_url" class="form-label">Screenshot URL</label>
+      <input id="screenshot_url" name="screenshot_url" type="url" class="form-input"
+        value="<%= it.challenge?.screenshot_url ?? '' %>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="notes" class="form-label">Notes</label>
+    <textarea id="notes" name="notes" class="form-textarea" rows="4"><%= it.challenge?.notes ?? '' %></textarea>
+  </div>
+
+  <div class="form-group form-group--checkbox">
+    <label class="form-checkbox-label">
+      <input type="checkbox" name="featured" value="on" class="form-checkbox"
+        <%= it.challenge?.featured ? 'checked' : '' %>>
+      Featured on homepage
+    </label>
+  </div>
+
+  <div class="admin-form-actions">
+    <button type="submit" class="btn btn--primary">
+      <%= it.isEdit ? 'Save Changes' : 'Create Challenge' %>
+    </button>
+    <a href="/admin/fm-challenges" class="btn btn--ghost">Cancel</a>
+  </div>
+</form>
