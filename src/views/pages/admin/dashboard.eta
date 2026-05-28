@@ -1,0 +1,62 @@
+<% layout('../../layouts/admin') %>
+
+<div class="admin-stat-grid">
+  <div class="admin-stat-card">
+    <span class="admin-stat-card__value"><%= it.counts.projects %></span>
+    <span class="admin-stat-card__label">Projects</span>
+    <a href="/admin/projects" class="admin-stat-card__link">Manage &rarr;</a>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-card__value"><%= it.counts.challenges %></span>
+    <span class="admin-stat-card__label">FM Challenges</span>
+    <a href="/admin/fm-challenges" class="admin-stat-card__link">Manage &rarr;</a>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-card__value"><%= it.counts.posts %></span>
+    <span class="admin-stat-card__label">Blog Posts</span>
+    <a href="/admin/blog" class="admin-stat-card__link">Manage &rarr;</a>
+  </div>
+  <div class="admin-stat-card">
+    <span class="admin-stat-card__value"><%= it.counts.messages %></span>
+    <span class="admin-stat-card__label">Messages</span>
+    <a href="/admin/contact" class="admin-stat-card__link">View &rarr;</a>
+  </div>
+</div>
+
+<% if (it.messages.length > 0) { %>
+<section class="admin-section">
+  <h2 class="admin-section__title">Recent Messages</h2>
+  <div class="admin-table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>From</th>
+          <th>Subject</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% it.messages.forEach(m => { %>
+        <tr>
+          <td>
+            <strong><%= m.name %></strong><br>
+            <span class="admin-table__sub"><%= m.email %></span>
+          </td>
+          <td><%= m.subject || '—' %></td>
+          <td class="admin-table__date"><%= m.created_at?.slice(0, 10) ?? '' %></td>
+          <td class="admin-table__actions">
+            <form method="POST" action="/admin/contact/<%= m.id %>/delete" style="display:inline">
+              <button type="submit" class="btn btn--ghost btn--sm admin-btn-danger"
+                onclick="return confirm('Delete this message?')">Delete</button>
+            </form>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<% } else { %>
+<p class="admin-empty">No messages yet.</p>
+<% } %>

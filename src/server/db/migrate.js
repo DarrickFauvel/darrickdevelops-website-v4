@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';

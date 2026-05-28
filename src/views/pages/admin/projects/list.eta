@@ -1,0 +1,39 @@
+<% layout('../../../layouts/admin') %>
+
+<% if (it.projects.length === 0) { %>
+<p class="admin-empty">No projects yet. <a href="/admin/projects/new">Create one &rarr;</a></p>
+<% } else { %>
+<div class="admin-table-wrapper">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Featured</th>
+        <th>Created</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% it.projects.forEach(p => { %>
+      <tr>
+        <td>
+          <strong><%= p.title %></strong><br>
+          <span class="admin-table__sub"><%= p.slug %></span>
+        </td>
+        <td><span class="admin-badge admin-badge--<%= p.status %>"><%= p.status %></span></td>
+        <td><%= p.featured ? '★' : '' %></td>
+        <td class="admin-table__date"><%= p.created_at?.slice(0, 10) ?? '' %></td>
+        <td class="admin-table__actions">
+          <a href="/admin/projects/<%= p.id %>/edit" class="btn btn--ghost btn--sm">Edit</a>
+          <form method="POST" action="/admin/projects/<%= p.id %>/delete" style="display:inline">
+            <button type="submit" class="btn btn--ghost btn--sm admin-btn-danger"
+              onclick="return confirm('Delete &quot;<%= p.title %>&quot;?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>

@@ -1,0 +1,52 @@
+<% layout('../../../layouts/admin') %>
+
+<% if (it.posts.length === 0) { %>
+<p class="admin-empty">No posts yet. <a href="/admin/blog/new">Create one &rarr;</a></p>
+<% } else { %>
+<div class="admin-table-wrapper">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Status</th>
+        <th>Published</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% it.posts.forEach(p => { %>
+      <tr>
+        <td>
+          <strong><%= p.title %></strong><br>
+          <span class="admin-table__sub"><%= p.slug %></span>
+        </td>
+        <td>
+          <% if (p.published) { %>
+          <span class="admin-badge admin-badge--published">Published</span>
+          <% } else { %>
+          <span class="admin-badge admin-badge--draft">Draft</span>
+          <% } %>
+        </td>
+        <td class="admin-table__date"><%= p.published_at?.slice(0, 10) ?? '—' %></td>
+        <td class="admin-table__actions">
+          <a href="/admin/blog/<%= p.id %>/edit" class="btn btn--ghost btn--sm">Edit</a>
+          <% if (p.published) { %>
+          <form method="POST" action="/admin/blog/<%= p.id %>/unpublish" style="display:inline">
+            <button type="submit" class="btn btn--ghost btn--sm">Unpublish</button>
+          </form>
+          <% } else { %>
+          <form method="POST" action="/admin/blog/<%= p.id %>/publish" style="display:inline">
+            <button type="submit" class="btn btn--primary btn--sm">Publish</button>
+          </form>
+          <% } %>
+          <form method="POST" action="/admin/blog/<%= p.id %>/delete" style="display:inline">
+            <button type="submit" class="btn btn--ghost btn--sm admin-btn-danger"
+              onclick="return confirm('Delete &quot;<%= p.title %>&quot;?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>

@@ -15,3 +15,18 @@ export async function getPostBySlug(slug) {
   });
   return rows[0] ?? null;
 }
+
+export async function getAllPosts() {
+  const { rows } = await db.execute(
+    'SELECT * FROM posts ORDER BY created_at DESC'
+  );
+  return rows;
+}
+
+export async function getPostById(id) {
+  const { rows } = await db.execute({
+    sql:  'SELECT * FROM posts WHERE id = ?',
+    args: [id],
+  });
+  return rows[0] ?? null;
+}

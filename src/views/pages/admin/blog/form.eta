@@ -1,0 +1,88 @@
+<% layout('../../../layouts/admin') %>
+
+<form
+  method="POST"
+  action="<%= it.isEdit ? `/admin/blog/${it.post.id}` : '/admin/blog' %>"
+  class="form admin-form"
+>
+  <div class="form-row">
+    <div class="form-group">
+      <label for="title" class="form-label">Title <span aria-hidden="true">*</span></label>
+      <input id="title" name="title" type="text" class="form-input" required
+        value="<%= it.post?.title ?? '' %>">
+    </div>
+    <div class="form-group">
+      <label for="slug" class="form-label">Slug <span class="form-label-hint">(auto-generated if blank)</span></label>
+      <input id="slug" name="slug" type="text" class="form-input"
+        value="<%= it.post?.slug ?? '' %>" pattern="[a-z0-9-]+"
+        placeholder="my-post-title">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="excerpt" class="form-label">Excerpt</label>
+    <textarea id="excerpt" name="excerpt" class="form-textarea" rows="2"><%= it.post?.excerpt ?? '' %></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="tags" class="form-label">Tags <span class="form-label-hint">(comma-separated)</span></label>
+    <input id="tags" name="tags" type="text" class="form-input"
+      value="<%= it.post?.tags?.join(', ') ?? '' %>"
+      placeholder="javascript, node, css">
+  </div>
+
+  <div class="form-group form-group--checkbox">
+    <label class="form-checkbox-label">
+      <input type="checkbox" name="published" value="on" class="form-checkbox"
+        <%= it.post?.published ? 'checked' : '' %>>
+      Published
+    </label>
+  </div>
+
+  <div class="blog-editor">
+    <div class="form-group blog-editor__pane">
+      <label for="body" class="form-label">Content <span class="form-label-hint">(Markdown)</span></label>
+      <textarea id="body" name="body" class="form-textarea blog-editor__textarea" rows="28"><%= it.post?.body ?? '' %></textarea>
+    </div>
+    <div class="blog-editor__pane">
+      <p class="form-label">Preview</p>
+      <div id="blog-preview" class="blog-preview">
+        <% if (it.preview) { %>
+        <%~ it.preview %>
+        <% } else { %>
+        <p class="blog-preview__empty">Start typing to see a preview…</p>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-form-actions">
+    <button type="submit" class="btn btn--primary">
+      <%= it.isEdit ? 'Save Changes' : 'Create Post' %>
+    </button>
+    <a href="/admin/blog" class="btn btn--ghost">Cancel</a>
+  </div>
+</form>
+
+<script>
+(function () {
+  const textarea = document.getElementById('body');
+  const preview  = document.getElementById('blog-preview');
+  const empty    = '<p class="blog-preview__empty">Start typing to see a preview…</p>';
+  let timer;
+  textarea.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      try {
+        const r    = await fetch('/admin/blog/preview', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ blogBody: textarea.value }),
+        });
+        const { html } = await r.json();
+        preview.innerHTML = html || empty;
+      } catch { /* silently ignore preview fetch errors */ }
+    }, 500);
+  });
+}());
+</script>

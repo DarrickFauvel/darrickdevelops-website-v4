@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= it.title %> — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/layout.css">
+  <link rel="stylesheet" href="/css/components/button.css">
+  <link rel="stylesheet" href="/css/components/form.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-shell<% if (it.noSidebar) { %> admin-shell--centered<% } %>">
+
+    <% if (!it.noSidebar) { %>
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar__brand">
+        <a href="/admin" class="admin-sidebar__logo">Darrick Develops</a>
+        <span class="admin-sidebar__tag">Admin</span>
+      </div>
+      <%~ include('../partials/admin-nav', it) %>
+      <div class="admin-sidebar__footer">
+        <form method="POST" action="/admin/logout">
+          <button type="submit" class="btn btn--ghost btn--sm">Log out</button>
+        </form>
+        <a href="/" class="admin-sidebar__site-link" target="_blank" rel="noopener">View site &rarr;</a>
+      </div>
+    </aside>
+    <% } %>
+
+    <div class="admin-content">
+      <% if (!it.noSidebar) { %>
+      <header class="admin-topbar">
+        <h1 class="admin-page-title"><%= it.title %></h1>
+        <% if (it.headerAction) { %>
+        <a href="<%= it.headerAction.href %>" class="btn btn--primary btn--sm"><%= it.headerAction.label %></a>
+        <% } %>
+      </header>
+      <% } %>
+      <%~ include('../partials/admin-flash', it) %>
+      <main class="admin-main">
+        <%~ it.body %>
+      </main>
+    </div>
+
+  </div>
+</body>
+</html>

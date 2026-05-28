@@ -25,3 +25,11 @@ export async function getChallengeBySlug(slug) {
   });
   return rows[0] ? parse(rows[0]) : null;
 }
+
+export async function getChallengeById(id) {
+  const { rows } = await db.execute({
+    sql:  'SELECT * FROM fm_challenges WHERE id = ?',
+    args: [id],
+  });
+  return rows[0] ? parse(rows[0]) : null;
+}

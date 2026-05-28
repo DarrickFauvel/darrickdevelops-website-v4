@@ -1,0 +1,38 @@
+<% layout('../../../layouts/admin') %>
+
+<% if (it.messages.length === 0) { %>
+<p class="admin-empty">No messages yet.</p>
+<% } else { %>
+<div class="admin-table-wrapper">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>From</th>
+        <th>Subject</th>
+        <th>Message</th>
+        <th>Date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% it.messages.forEach(m => { %>
+      <tr>
+        <td>
+          <strong><%= m.name %></strong><br>
+          <a href="mailto:<%= m.email %>" class="admin-table__sub"><%= m.email %></a>
+        </td>
+        <td><%= m.subject || '—' %></td>
+        <td class="admin-table__message"><%= m.message %></td>
+        <td class="admin-table__date"><%= m.created_at?.slice(0, 10) ?? '' %></td>
+        <td class="admin-table__actions">
+          <form method="POST" action="/admin/contact/<%= m.id %>/delete" style="display:inline">
+            <button type="submit" class="btn btn--ghost btn--sm admin-btn-danger"
+              onclick="return confirm('Delete this message?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>

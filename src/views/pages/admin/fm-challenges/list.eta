@@ -1,0 +1,39 @@
+<% layout('../../../layouts/admin') %>
+
+<% if (it.challenges.length === 0) { %>
+<p class="admin-empty">No challenges yet. <a href="/admin/fm-challenges/new">Create one &rarr;</a></p>
+<% } else { %>
+<div class="admin-table-wrapper">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Difficulty</th>
+        <th>Featured</th>
+        <th>Completed</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% it.challenges.forEach(c => { %>
+      <tr>
+        <td>
+          <strong><%= c.title %></strong><br>
+          <span class="admin-table__sub"><%= c.slug %></span>
+        </td>
+        <td><span class="badge--<%= c.difficulty.toLowerCase() %>"><%= c.difficulty %></span></td>
+        <td><%= c.featured ? '★' : '' %></td>
+        <td class="admin-table__date"><%= c.completed_at?.slice(0, 10) ?? '—' %></td>
+        <td class="admin-table__actions">
+          <a href="/admin/fm-challenges/<%= c.id %>/edit" class="btn btn--ghost btn--sm">Edit</a>
+          <form method="POST" action="/admin/fm-challenges/<%= c.id %>/delete" style="display:inline">
+            <button type="submit" class="btn btn--ghost btn--sm admin-btn-danger"
+              onclick="return confirm('Delete &quot;<%= c.title %>&quot;?')">Delete</button>
+          </form>
+        </td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>
