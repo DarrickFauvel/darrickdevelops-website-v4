@@ -16,15 +16,44 @@
   }
 
   .nav__logo {
-    font-size: var(--text-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+
+  .nav__logo-icon {
+    flex-shrink: 0;
+    transition: opacity var(--ease-fast);
+  }
+
+  .nav__logo:hover .nav__logo-icon { opacity: 0.85; }
+
+  .nav__logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .nav__logo-name {
+    font-size: var(--text-base);
     font-weight: 700;
     color: var(--color-text-primary);
-    text-decoration: none;
     letter-spacing: -0.02em;
     transition: color var(--ease-fast);
   }
 
-  .nav__logo:hover { color: var(--color-accent); }
+  .nav__logo-brand {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-accent);
+    letter-spacing: -0.02em;
+    transition: color var(--ease-fast);
+  }
+
+  .nav__logo:hover .nav__logo-name  { color: var(--color-accent); }
+  .nav__logo:hover .nav__logo-brand { color: var(--color-accent-hover); }
 
   .nav__right {
     display: flex;
