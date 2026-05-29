@@ -12,11 +12,18 @@ function parseList(v) {
   return JSON.stringify(v.split(',').map(s => s.trim()).filter(Boolean));
 }
 
+const VIEWPORTS = {
+  desktop: { width: 1280, height: 800  },
+  tablet:  { width: 768,  height: 1024 },
+  mobile:  { width: 390,  height: 844  },
+};
+const VIEWPORT_NAMES = Object.keys(VIEWPORTS);
+
 const FLASH = {
   created:           'Project created.',
-  'created-thumb':   'Project created with auto-generated thumbnail.',
+  'created-thumb':   'Project created with auto-generated screenshots.',
   updated:           'Project updated.',
-  'updated-thumb':   'Project updated with auto-generated thumbnail.',
+  'updated-thumb':   'Project updated with auto-generated screenshots.',
   deleted:           'Project deleted.',
   'slug-taken':      'That slug is already in use — choose a different one.',
   'not-found':       'Project not found.',
@@ -29,6 +36,22 @@ function getFlash(req) {
   if (req.query.error)   return { type: 'error',   message: FLASH[req.query.error]   ?? 'Error.' };
   return null;
 }
+
+router.get('/screenshot-preview', async (req, res) => {
+  const { url, width = 1280, height = 800 } = req.query;
+  if (!url) return res.status(400).end();
+  try {
+    const src = `https://image.thum.io/get/width/${width}/viewportWidth/${width}/crop/${height}/${url}`;
+    const upstream = await fetch(src);
+    if (!upstream.ok) return res.status(502).end();
+    res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
+    res.set('Cache-Control', 'private, max-age=300');
+    const { Readable } = await import('stream');
+    Readable.fromWeb(upstream.body).pipe(res);
+  } catch {
+    res.status(502).end();
+  }
+});
 
 router.get('/', async (req, res) => {
   const projects = await getAllProjects();
@@ -56,14 +79,29 @@ router.post('/', async (req, res) => {
   const slug = b.slug?.trim() || slugify(b.title ?? '');
   let thumbnail_url = b.thumbnail_url?.trim() || null;
   let thumbFailed   = false;
+  const generated   = [];
 
-  if (b.auto_thumbnail === 'on' && b.live_url?.trim()) {
-    try {
-      thumbnail_url = await screenshotUrl(b.live_url.trim(), slug);
-    } catch {
-      thumbFailed = true;
+  if (b.live_url?.trim()) {
+    for (const vp of VIEWPORT_NAMES) {
+      if (b[`gen_${vp}`] === 'on') {
+        try {
+          const url = await screenshotUrl(b.live_url.trim(), slug, vp);
+          generated.push(url);
+          if (!thumbnail_url) thumbnail_url = url;
+        } catch {
+          thumbFailed = true;
+        }
+      }
     }
   }
+
+  const existingScreenshots = b.screenshots
+    ? b.screenshots.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  const mergedScreenshots = [
+    ...existingScreenshots.filter(s => !generated.some(g => s.endsWith(g.split('/').pop()))),
+    ...generated,
+  ];
 
   try {
     await createProject({
@@ -78,11 +116,11 @@ router.post('/', async (req, res) => {
       live_url:      b.live_url?.trim() || null,
       repo_url:      b.repo_url?.trim() || null,
       thumbnail_url,
-      screenshots:   parseList(b.screenshots),
+      screenshots:   JSON.stringify(mergedScreenshots),
       status:        b.status ?? 'live',
       featured:      b.featured === 'on' ? 1 : 0,
     });
-    const key = thumbFailed ? 'thumb-failed' : (thumbnail_url && b.auto_thumbnail === 'on' ? 'created-thumb' : 'created');
+    const key = thumbFailed ? 'thumb-failed' : (generated.length ? 'created-thumb' : 'created');
     res.redirect(`/admin/projects?success=${key}`);
   } catch (err) {
     const key = err.message?.includes('UNIQUE') ? 'slug-taken' : 'error';
@@ -108,14 +146,29 @@ router.post('/:id', async (req, res) => {
   const slug = b.slug?.trim() || slugify(b.title ?? '');
   let thumbnail_url = b.thumbnail_url?.trim() || null;
   let thumbFailed   = false;
+  const generated   = [];
 
-  if (b.auto_thumbnail === 'on' && b.live_url?.trim()) {
-    try {
-      thumbnail_url = await screenshotUrl(b.live_url.trim(), slug);
-    } catch {
-      thumbFailed = true;
+  if (b.live_url?.trim()) {
+    for (const vp of VIEWPORT_NAMES) {
+      if (b[`gen_${vp}`] === 'on') {
+        try {
+          const url = await screenshotUrl(b.live_url.trim(), slug, vp);
+          generated.push(url);
+          if (!thumbnail_url) thumbnail_url = url;
+        } catch {
+          thumbFailed = true;
+        }
+      }
     }
   }
+
+  const existingScreenshots = b.screenshots
+    ? b.screenshots.split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+  const mergedScreenshots = [
+    ...existingScreenshots.filter(s => !generated.some(g => s.endsWith(g.split('/').pop()))),
+    ...generated,
+  ];
 
   try {
     await updateProject(id, {
@@ -130,11 +183,11 @@ router.post('/:id', async (req, res) => {
       live_url:      b.live_url?.trim() || null,
       repo_url:      b.repo_url?.trim() || null,
       thumbnail_url,
-      screenshots:   parseList(b.screenshots),
+      screenshots:   JSON.stringify(mergedScreenshots),
       status:        b.status ?? 'live',
       featured:      b.featured === 'on' ? 1 : 0,
     });
-    const key = thumbFailed ? 'thumb-failed' : (thumbnail_url && b.auto_thumbnail === 'on' ? 'updated-thumb' : 'updated');
+    const key = thumbFailed ? 'thumb-failed' : (generated.length ? 'updated-thumb' : 'updated');
     res.redirect(`/admin/projects?success=${key}`);
   } catch (err) {
     const key = err.message?.includes('UNIQUE') ? 'slug-taken' : 'error';

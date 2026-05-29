@@ -5,113 +5,205 @@
   action="<%= it.isEdit ? `/admin/projects/${it.project.id}` : '/admin/projects' %>"
   class="form admin-form"
 >
-  <div class="form-row">
-    <div class="form-group">
-      <label for="title" class="form-label">Title <span aria-hidden="true">*</span></label>
-      <input id="title" name="title" type="text" class="form-input" required
-        value="<%= it.project?.title ?? '' %>">
-    </div>
-    <div class="form-group">
-      <label for="slug" class="form-label">Slug <span class="form-label-hint">(auto-generated if blank)</span></label>
-      <input id="slug" name="slug" type="text" class="form-input"
-        value="<%= it.project?.slug ?? '' %>" pattern="[a-z0-9-]+"
-        placeholder="my-project-name">
-    </div>
-  </div>
 
-  <div class="form-group">
-    <label for="summary" class="form-label">Summary <span aria-hidden="true">*</span></label>
-    <input id="summary" name="summary" type="text" class="form-input" required
-      value="<%= it.project?.summary ?? '' %>">
-  </div>
+  <fieldset class="form-fieldset">
+    <legend class="form-fieldset__legend">Basics</legend>
 
-  <div class="form-group">
-    <label for="description" class="form-label">Description <span class="form-label-hint">(Markdown)</span></label>
-    <textarea id="description" name="description" class="form-textarea" rows="6"><%= it.project?.description ?? '' %></textarea>
-  </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="title" class="form-label">Title <span aria-hidden="true">*</span></label>
+        <input id="title" name="title" type="text" class="form-input" required
+          value="<%= it.project?.title ?? '' %>">
+      </div>
+      <div class="form-group">
+        <label for="slug" class="form-label">Slug <span class="form-label-hint">(auto-generated if blank)</span></label>
+        <input id="slug" name="slug" type="text" class="form-input"
+          value="<%= it.project?.slug ?? '' %>" pattern="[a-z0-9-]+"
+          placeholder="my-project-name">
+      </div>
+    </div>
 
-  <div class="form-row">
     <div class="form-group">
-      <label for="tech_stack" class="form-label">Tech Stack <span class="form-label-hint">(comma-separated)</span></label>
-      <input id="tech_stack" name="tech_stack" type="text" class="form-input"
-        value="<%= it.project?.tech_stack?.join(', ') ?? '' %>"
-        placeholder="Node.js, Express, Turso">
+      <label for="summary" class="form-label">Summary <span aria-hidden="true">*</span></label>
+      <input id="summary" name="summary" type="text" class="form-input" required
+        value="<%= it.project?.summary ?? '' %>">
     </div>
-    <div class="form-group">
-      <label for="features" class="form-label">Features <span class="form-label-hint">(comma-separated)</span></label>
-      <input id="features" name="features" type="text" class="form-input"
-        value="<%= it.project?.features?.join(', ') ?? '' %>">
-    </div>
-  </div>
 
-  <div class="form-group">
-    <label for="challenges" class="form-label">Challenges</label>
-    <textarea id="challenges" name="challenges" class="form-textarea" rows="3"><%= it.project?.challenges ?? '' %></textarea>
-  </div>
-
-  <div class="form-group">
-    <label for="solutions" class="form-label">Solutions</label>
-    <textarea id="solutions" name="solutions" class="form-textarea" rows="3"><%= it.project?.solutions ?? '' %></textarea>
-  </div>
-
-  <div class="form-row">
     <div class="form-group">
-      <label for="live_url" class="form-label">Live URL</label>
-      <input id="live_url" name="live_url" type="url" class="form-input"
-        value="<%= it.project?.live_url ?? '' %>">
+      <label for="description" class="form-label">Description <span class="form-label-hint">(Markdown)</span></label>
+      <textarea id="description" name="description" class="form-textarea" rows="6"><%= it.project?.description ?? '' %></textarea>
     </div>
-    <div class="form-group">
-      <label for="repo_url" class="form-label">Repo URL</label>
-      <input id="repo_url" name="repo_url" type="url" class="form-input"
-        value="<%= it.project?.repo_url ?? '' %>">
-    </div>
-  </div>
+  </fieldset>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="thumbnail_url" class="form-label">
-        Thumbnail URL
-        <span class="form-label-hint">(leave blank to use auto-generate)</span>
-      </label>
-      <input id="thumbnail_url" name="thumbnail_url" type="url" class="form-input"
-        value="<%= it.project?.thumbnail_url ?? '' %>"
-        placeholder="https://…">
-      <% if (it.project?.thumbnail_url) { %>
-      <img src="<%= it.project.thumbnail_url %>" alt="Current thumbnail"
-           style="margin-top:var(--space-2);max-width:12rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
-      <% } %>
-    </div>
-    <div class="form-group">
-      <label for="screenshots" class="form-label">Screenshots <span class="form-label-hint">(comma-separated URLs)</span></label>
-      <input id="screenshots" name="screenshots" type="text" class="form-input"
-        value="<%= it.project?.screenshots?.join(', ') ?? '' %>">
-    </div>
-  </div>
+  <fieldset class="form-fieldset">
+    <legend class="form-fieldset__legend">Details</legend>
 
-  <div class="form-group form-group--checkbox">
-    <label class="form-checkbox-label">
-      <input type="checkbox" name="auto_thumbnail" value="on" class="form-checkbox">
-      Auto-generate thumbnail from Live URL <span class="form-label-hint">(takes a screenshot — requires Live URL)</span>
-    </label>
-  </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="tech_stack" class="form-label">Tech Stack <span class="form-label-hint">(comma-separated)</span></label>
+        <input id="tech_stack" name="tech_stack" type="text" class="form-input"
+          value="<%= it.project?.tech_stack?.join(', ') ?? '' %>"
+          placeholder="Node.js, Express, Turso">
+      </div>
+      <div class="form-group">
+        <label for="features" class="form-label">Features <span class="form-label-hint">(comma-separated)</span></label>
+        <input id="features" name="features" type="text" class="form-input"
+          value="<%= it.project?.features?.join(', ') ?? '' %>">
+      </div>
+    </div>
 
-  <div class="form-row">
     <div class="form-group">
-      <label for="status" class="form-label">Status</label>
-      <select id="status" name="status" class="form-input">
-        <option value="live"        <%= (it.project?.status ?? 'live') === 'live'        ? 'selected' : '' %>>Live</option>
-        <option value="in-progress" <%= (it.project?.status)           === 'in-progress' ? 'selected' : '' %>>In Progress</option>
-        <option value="archived"    <%= (it.project?.status)           === 'archived'    ? 'selected' : '' %>>Archived</option>
-      </select>
+      <label for="challenges" class="form-label">Challenges</label>
+      <textarea id="challenges" name="challenges" class="form-textarea" rows="3"><%= it.project?.challenges ?? '' %></textarea>
     </div>
-    <div class="form-group form-group--checkbox">
-      <label class="form-checkbox-label">
-        <input type="checkbox" name="featured" value="on" class="form-checkbox"
-          <%= it.project?.featured ? 'checked' : '' %>>
-        Featured on homepage
-      </label>
+
+    <div class="form-group">
+      <label for="solutions" class="form-label">Solutions</label>
+      <textarea id="solutions" name="solutions" class="form-textarea" rows="3"><%= it.project?.solutions ?? '' %></textarea>
     </div>
-  </div>
+  </fieldset>
+
+  <fieldset class="form-fieldset">
+    <legend class="form-fieldset__legend">Links</legend>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="live_url" class="form-label">Live URL</label>
+        <input id="live_url" name="live_url" type="url" class="form-input"
+          value="<%= it.project?.live_url ?? '' %>">
+      </div>
+      <div class="form-group">
+        <label for="repo_url" class="form-label">Repo URL</label>
+        <input id="repo_url" name="repo_url" type="url" class="form-input"
+          value="<%= it.project?.repo_url ?? '' %>">
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-fieldset">
+    <legend class="form-fieldset__legend">Images</legend>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="thumbnail_url" class="form-label">
+          Thumbnail URL
+          <span class="form-label-hint">(leave blank to auto-generate)</span>
+        </label>
+        <input id="thumbnail_url" name="thumbnail_url" type="url" class="form-input"
+          value="<%= it.project?.thumbnail_url ?? '' %>"
+          placeholder="https://…">
+        <% if (it.project?.thumbnail_url) { %>
+        <img src="<%= it.project.thumbnail_url %>" alt="Current thumbnail"
+             style="margin-top:var(--space-2);max-width:12rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
+        <% } %>
+      </div>
+      <div class="form-group">
+        <label for="screenshots" class="form-label">Screenshots <span class="form-label-hint">(comma-separated URLs)</span></label>
+        <input id="screenshots" name="screenshots" type="text" class="form-input"
+          value="<%= it.project?.screenshots?.join(', ') ?? '' %>">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="screenshot-gen__header">
+        <p class="form-label">Generate screenshots from Live URL</p>
+        <label class="form-checkbox-label">
+          <input type="checkbox" id="js-frame-toggle" class="form-checkbox">
+          Device frame
+        </label>
+      </div>
+      <div class="screenshot-gen" id="screenshot-gen">
+        <div class="screenshot-gen__option">
+          <label class="form-checkbox-label">
+            <input type="checkbox" name="gen_desktop" value="on" class="form-checkbox js-screenshot-cb"
+                   data-viewport="desktop" data-width="1280" data-height="800">
+            Desktop <span class="form-label-hint">1280×800</span>
+          </label>
+          <div class="screenshot-gen__preview" id="preview-desktop" hidden>
+            <div class="screenshot-gen__device" data-viewport="desktop">
+              <img class="screenshot-gen__img" alt="Desktop preview">
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-gen__option">
+          <label class="form-checkbox-label">
+            <input type="checkbox" name="gen_tablet" value="on" class="form-checkbox js-screenshot-cb"
+                   data-viewport="tablet" data-width="768" data-height="1024">
+            Tablet <span class="form-label-hint">768×1024</span>
+          </label>
+          <div class="screenshot-gen__preview" id="preview-tablet" hidden>
+            <div class="screenshot-gen__device" data-viewport="tablet">
+              <img class="screenshot-gen__img" alt="Tablet preview">
+            </div>
+          </div>
+        </div>
+        <div class="screenshot-gen__option">
+          <label class="form-checkbox-label">
+            <input type="checkbox" name="gen_mobile" value="on" class="form-checkbox js-screenshot-cb"
+                   data-viewport="mobile" data-width="390" data-height="844">
+            Mobile <span class="form-label-hint">390×844</span>
+          </label>
+          <div class="screenshot-gen__preview" id="preview-mobile" hidden>
+            <div class="screenshot-gen__device" data-viewport="mobile">
+              <img class="screenshot-gen__img" alt="Mobile preview">
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="form-hint">Screenshots are uploaded to Cloudinary. The first generated (desktop → tablet → mobile) sets the thumbnail if the Thumbnail URL field is blank.</p>
+    </div>
+  </fieldset>
+
+  <fieldset class="form-fieldset">
+    <legend class="form-fieldset__legend">Settings</legend>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="status" class="form-label">Status</label>
+        <select id="status" name="status" class="form-input">
+          <option value="live"        <%= (it.project?.status ?? 'live') === 'live'        ? 'selected' : '' %>>Live</option>
+          <option value="in-progress" <%= (it.project?.status)           === 'in-progress' ? 'selected' : '' %>>In Progress</option>
+          <option value="archived"    <%= (it.project?.status)           === 'archived'    ? 'selected' : '' %>>Archived</option>
+        </select>
+      </div>
+      <div class="form-group form-group--checkbox">
+        <label class="form-checkbox-label">
+          <input type="checkbox" name="featured" value="on" class="form-checkbox"
+            <%= it.project?.featured ? 'checked' : '' %>>
+          Featured on homepage
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <script>
+    document.querySelectorAll('.js-screenshot-cb').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const liveUrl = document.getElementById('live_url').value.trim();
+        const preview = document.getElementById('preview-' + cb.dataset.viewport);
+        const img     = preview.querySelector('img');
+
+        if (!cb.checked || !liveUrl) {
+          preview.hidden = true;
+          img.removeAttribute('src');
+          return;
+        }
+
+        preview.hidden = false;
+        preview.dataset.state = 'loading';
+        img.removeAttribute('src');
+
+        img.onload  = () => { preview.dataset.state = 'loaded'; };
+        img.onerror = () => { preview.dataset.state = 'error'; };
+        img.src = '/admin/projects/screenshot-preview?url=' + encodeURIComponent(liveUrl) +
+                  '&width=' + cb.dataset.width + '&height=' + cb.dataset.height;
+      });
+    });
+
+    document.getElementById('js-frame-toggle').addEventListener('change', function () {
+      document.getElementById('screenshot-gen').classList.toggle('screenshot-gen--framed', this.checked);
+    });
+  </script>
 
   <div class="admin-form-actions">
     <button type="submit" class="btn btn--primary">
