@@ -28,7 +28,11 @@
     <div class="grid-auto">
       <% it.projects.forEach(p => { %>
       <project-card>
+        <% if (p.thumbnail_url) { %>
+        <img src="<%= p.thumbnail_url %>" alt="<%= p.title %>" class="card__image">
+        <% } else { %>
         <div class="card__image-placeholder" aria-hidden="true"></div>
+        <% } %>
         <div class="card__body">
           <a href="/projects/<%= p.slug %>" class="card__title"><%= p.title %></a>
           <p class="card__summary"><%= p.summary %></p>
