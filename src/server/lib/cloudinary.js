@@ -7,11 +7,11 @@ export function isCloudinaryId(v) {
 
 export function signedUrl(publicId) {
   const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_SECRET } = process.env;
-  const sig = createHash('sha256')
-    .update(publicId + CLOUDINARY_API_SECRET)
-    .digest('hex')
+  const sig = createHash('sha1')
+    .update(`${publicId}.png` + CLOUDINARY_API_SECRET)
+    .digest('base64url')
     .slice(0, 8);
-  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/private/s--${sig}--/${publicId}`;
+  return `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/image/private/s--${sig}--/${publicId}.png`;
 }
 
 export function resolveUrl(stored) {
