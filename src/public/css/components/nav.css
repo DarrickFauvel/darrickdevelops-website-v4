@@ -26,6 +26,12 @@
 
   .nav__logo:hover { color: var(--color-accent); }
 
+  .nav__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
   .nav__links {
     display: flex;
     list-style: none;
@@ -45,15 +51,28 @@
   .nav__link:hover,
   .nav__link[aria-current="page"] { color: var(--color-accent); }
 
+  .nav__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .nav__qr,
   .nav__toggle {
-    display: none;
+    display: flex;
     background: none;
     border: none;
     cursor: pointer;
     padding: var(--space-2);
     color: var(--color-text-primary);
     border-radius: var(--radius-sm);
+    transition: color var(--ease-fast), background var(--ease-fast);
   }
+
+  .nav__qr:hover,
+  .nav__toggle:hover { color: var(--color-accent); }
+
+  .nav__toggle { display: none; }
 
   @media (max-width: 640px) {
     .nav__toggle { display: flex; }
@@ -73,5 +92,79 @@
     }
 
     .nav__links.is-open { display: flex; }
+  }
+
+  /* QR modal */
+  @keyframes qr-backdrop-in {
+    from { background: rgb(0 0 0 / 0); }
+    to   { background: rgb(0 0 0 / 0.5); }
+  }
+
+  @keyframes qr-box-in {
+    from { opacity: 0; transform: scale(0.93) translateY(8px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+  }
+
+  .qr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.5);
+    animation: qr-backdrop-in 220ms ease both;
+  }
+
+  .qr-modal.is-closing {
+    animation: qr-backdrop-in 180ms ease reverse both;
+    pointer-events: none;
+  }
+
+  .qr-modal[hidden] { display: none; }
+
+  .qr-modal__box {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    box-shadow: var(--shadow-lift);
+    animation: qr-box-in 220ms var(--ease-base) both;
+  }
+
+  .qr-modal.is-closing .qr-modal__box {
+    animation: qr-box-in 180ms ease reverse both;
+  }
+
+  .qr-modal__close {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    display: flex;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-1);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    transition: color var(--ease-fast);
+  }
+
+  .qr-modal__close:hover { color: var(--color-text-primary); }
+
+  .qr-modal__img {
+    display: block;
+    border-radius: var(--radius-sm);
+  }
+
+  .qr-modal__url {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    font-family: var(--font-mono);
   }
 }
