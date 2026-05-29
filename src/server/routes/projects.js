@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { render } from '../lib/eta.js';
 import { getAllProjects, getProjectBySlug } from '../db/queries/projects.js';
+import { hydrateProject } from '../lib/cloudinary.js';
 
 const router = Router();
 
 router.get('/', async (req, res) => {
-  const projects = await getAllProjects();
+  const projects = (await getAllProjects()).map(hydrateProject);
   const allTags = [...new Set(projects.flatMap(p => p.tech_stack))];
   await render(res, 'pages/projects', {
     title: 'Projects — Darrick Develops',
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:slug', async (req, res) => {
-  const project = await getProjectBySlug(req.params.slug);
+  const project = hydrateProject(await getProjectBySlug(req.params.slug));
   if (!project) return res.status(404).send('Not found');
   await render(res, 'pages/project-detail', {
     title: `${project.title} — Darrick Develops`,
