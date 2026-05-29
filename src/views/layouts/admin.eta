@@ -19,29 +19,61 @@
   <div class="admin-shell<% if (it.noSidebar) { %> admin-shell--centered<% } %>">
 
     <% if (!it.noSidebar) { %>
-    <aside class="admin-sidebar">
-      <div class="admin-sidebar__brand">
-        <a href="/admin" class="admin-sidebar__logo">Darrick Develops</a>
-        <span class="admin-sidebar__tag">Admin</span>
+    <header class="admin-topbar">
+      <div class="admin-topbar__brand">
+        <a href="/admin" class="admin-topbar__logo">Darrick Develops</a>
+        <span class="admin-topbar__tag">Admin</span>
       </div>
       <%~ include('../partials/admin-nav', it) %>
-      <div class="admin-sidebar__footer">
-        <form method="POST" action="/admin/logout">
-          <button type="submit" class="btn btn--ghost btn--sm">Log out</button>
+      <div class="admin-topbar__actions">
+        <a href="/" class="admin-topbar__action-link" target="_blank" rel="noopener">View site</a>
+        <form method="POST" action="/admin/logout" style="display:contents">
+          <button type="submit" class="admin-topbar__action-link">Log out</button>
         </form>
-        <a href="/" class="admin-sidebar__site-link" target="_blank" rel="noopener">View site &rarr;</a>
+        <button
+          class="admin-menu-toggle"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+          aria-controls="admin-nav"
+        ><span class="admin-menu-toggle__icon"></span></button>
       </div>
-    </aside>
+    </header>
     <% } %>
+
+    <script>
+      const toggle = document.querySelector('.admin-menu-toggle');
+      const nav    = document.getElementById('admin-nav');
+      if (toggle && nav) {
+        toggle.addEventListener('click', () => {
+          const open = nav.classList.toggle('is-open');
+          toggle.setAttribute('aria-expanded', open);
+          toggle.classList.toggle('is-open', open);
+        });
+        document.addEventListener('click', e => {
+          if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+            nav.classList.remove('is-open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.classList.remove('is-open');
+          }
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            nav.classList.remove('is-open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.classList.remove('is-open');
+          }
+        });
+      }
+    </script>
 
     <div class="admin-content">
       <% if (!it.noSidebar) { %>
-      <header class="admin-topbar">
+      <div class="admin-page-header">
         <h1 class="admin-page-title"><%= it.title %></h1>
         <% if (it.headerAction) { %>
         <a href="<%= it.headerAction.href %>" class="btn btn--primary btn--sm"><%= it.headerAction.label %></a>
         <% } %>
-      </header>
+      </div>
       <% } %>
       <%~ include('../partials/admin-flash', it) %>
       <main class="admin-main">

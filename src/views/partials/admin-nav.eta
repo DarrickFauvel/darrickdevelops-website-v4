@@ -1,4 +1,4 @@
-<nav class="admin-nav" aria-label="Admin navigation">
+<nav class="admin-nav" id="admin-nav" aria-label="Admin navigation">
   <ul role="list">
     <li>
       <a href="/admin" class="admin-nav__link<% if (it.activeNav === 'dashboard') { %> admin-nav__link--active<% } %>"
