@@ -7,12 +7,14 @@
     --color-bg:             #f9f9f9;
     --color-surface:        #ffffff;
     --color-border:         #e5e7eb;
-    --color-text-primary:   #111827;
+    --color-text-primary:   #1f1f2a;
     --color-text-secondary: #6b7280;
-    --color-accent:         #1e3a5f;
-    --color-accent-hover:   #16294a;
-    --color-success:        #16a34a;
-    --color-error:          #dc2626;
+    --color-accent:         #4163bf;
+    --color-accent-hover:   #3352a3;
+    --color-success:        #6cc356;
+    --color-error:          #ef4123;
+    --color-warning:        #f59e28;
+    --color-blue-light:     #4c8bbf;
 
     /* spacing (4px base) */
     --space-1:  0.25rem;
