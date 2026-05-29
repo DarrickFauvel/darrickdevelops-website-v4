@@ -4,6 +4,7 @@
   method="POST"
   action="<%= it.isEdit ? `/admin/projects/${it.project.id}` : '/admin/projects' %>"
   class="form admin-form"
+  enctype="multipart/form-data"
 >
 
   <fieldset class="form-fieldset">
@@ -83,26 +84,22 @@
   <fieldset class="form-fieldset">
     <legend class="form-fieldset__legend">Images</legend>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label for="thumbnail_url" class="form-label">
-          Thumbnail URL
-          <span class="form-label-hint">(leave blank to auto-generate)</span>
-        </label>
-        <input id="thumbnail_url" name="thumbnail_url" type="url" class="form-input"
-          value="<%= it.project?.thumbnail_url ?? '' %>"
-          placeholder="https://…">
-        <% if (it.project?.thumbnail_url) { %>
-        <img src="<%= it.project.thumbnail_url %>" alt="Current thumbnail"
-             style="margin-top:var(--space-2);max-width:12rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
-        <% } %>
-      </div>
-      <div class="form-group">
-        <label for="screenshots" class="form-label">Screenshots <span class="form-label-hint">(comma-separated URLs)</span></label>
-        <input id="screenshots" name="screenshots" type="text" class="form-input"
-          value="<%= it.project?.screenshots?.join(', ') ?? '' %>">
-      </div>
+    <% if (it.thumbnailPreview) { %>
+    <div class="form-group">
+      <p class="form-label">Current thumbnail</p>
+      <img src="<%= it.thumbnailPreview %>" alt="Current thumbnail"
+           style="max-width:16rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
+      <button
+        type="submit"
+        formaction="/admin/projects/<%= it.project.id %>/delete-thumbnail"
+        formmethod="POST"
+        formenctype="application/x-www-form-urlencoded"
+        class="btn btn--ghost btn--sm"
+        style="margin-top:var(--space-2)"
+        onclick="return confirm('Delete this thumbnail? This cannot be undone.')"
+      >Delete thumbnail</button>
     </div>
+    <% } %>
 
     <div class="form-group">
       <div class="screenshot-gen__header">
@@ -114,11 +111,20 @@
       </div>
       <div class="screenshot-gen" id="screenshot-gen">
         <div class="screenshot-gen__option">
-          <label class="form-checkbox-label">
-            <input type="checkbox" name="gen_desktop" value="on" class="form-checkbox js-screenshot-cb"
-                   data-viewport="desktop" data-width="1280" data-height="800">
-            Desktop <span class="form-label-hint">1280×800</span>
-          </label>
+          <div class="screenshot-gen__controls">
+            <label class="form-checkbox-label">
+              <input type="checkbox" name="gen_desktop" value="on" class="form-checkbox js-screenshot-cb"
+                     data-viewport="desktop" data-width="1280" data-height="800">
+              Desktop <span class="form-label-hint">1280×800</span>
+            </label>
+            <span class="screenshot-gen__or">or</span>
+            <label class="screenshot-gen__upload-label">
+              <input type="file" name="upload_desktop" accept="image/*" class="screenshot-gen__file-input js-upload-input"
+                     data-viewport="desktop">
+              <span class="screenshot-gen__upload-btn">Upload</span>
+              <span class="screenshot-gen__filename"></span>
+            </label>
+          </div>
           <div class="screenshot-gen__preview" id="preview-desktop" hidden>
             <div class="screenshot-gen__device" data-viewport="desktop">
               <img class="screenshot-gen__img" alt="Desktop preview">
@@ -126,11 +132,20 @@
           </div>
         </div>
         <div class="screenshot-gen__option">
-          <label class="form-checkbox-label">
-            <input type="checkbox" name="gen_tablet" value="on" class="form-checkbox js-screenshot-cb"
-                   data-viewport="tablet" data-width="768" data-height="1024">
-            Tablet <span class="form-label-hint">768×1024</span>
-          </label>
+          <div class="screenshot-gen__controls">
+            <label class="form-checkbox-label">
+              <input type="checkbox" name="gen_tablet" value="on" class="form-checkbox js-screenshot-cb"
+                     data-viewport="tablet" data-width="768" data-height="1024">
+              Tablet <span class="form-label-hint">768×1024</span>
+            </label>
+            <span class="screenshot-gen__or">or</span>
+            <label class="screenshot-gen__upload-label">
+              <input type="file" name="upload_tablet" accept="image/*" class="screenshot-gen__file-input js-upload-input"
+                     data-viewport="tablet">
+              <span class="screenshot-gen__upload-btn">Upload</span>
+              <span class="screenshot-gen__filename"></span>
+            </label>
+          </div>
           <div class="screenshot-gen__preview" id="preview-tablet" hidden>
             <div class="screenshot-gen__device" data-viewport="tablet">
               <img class="screenshot-gen__img" alt="Tablet preview">
@@ -138,11 +153,20 @@
           </div>
         </div>
         <div class="screenshot-gen__option">
-          <label class="form-checkbox-label">
-            <input type="checkbox" name="gen_mobile" value="on" class="form-checkbox js-screenshot-cb"
-                   data-viewport="mobile" data-width="390" data-height="844">
-            Mobile <span class="form-label-hint">390×844</span>
-          </label>
+          <div class="screenshot-gen__controls">
+            <label class="form-checkbox-label">
+              <input type="checkbox" name="gen_mobile" value="on" class="form-checkbox js-screenshot-cb"
+                     data-viewport="mobile" data-width="390" data-height="660">
+              Mobile <span class="form-label-hint">390×660</span>
+            </label>
+            <span class="screenshot-gen__or">or</span>
+            <label class="screenshot-gen__upload-label">
+              <input type="file" name="upload_mobile" accept="image/*" class="screenshot-gen__file-input js-upload-input"
+                     data-viewport="mobile">
+              <span class="screenshot-gen__upload-btn">Upload</span>
+              <span class="screenshot-gen__filename"></span>
+            </label>
+          </div>
           <div class="screenshot-gen__preview" id="preview-mobile" hidden>
             <div class="screenshot-gen__device" data-viewport="mobile">
               <img class="screenshot-gen__img" alt="Mobile preview">
@@ -202,6 +226,31 @@
 
     document.getElementById('js-frame-toggle').addEventListener('change', function () {
       document.getElementById('screenshot-gen').classList.toggle('screenshot-gen--framed', this.checked);
+    });
+
+    document.querySelectorAll('.js-upload-input').forEach(input => {
+      input.addEventListener('change', () => {
+        const vp       = input.dataset.viewport;
+        const preview  = document.getElementById('preview-' + vp);
+        const img      = preview.querySelector('img');
+        const filename = input.closest('.screenshot-gen__upload-label').querySelector('.screenshot-gen__filename');
+        const genCb    = document.querySelector(`[name="gen_${vp}"]`);
+
+        if (input.files[0]) {
+          filename.textContent = input.files[0].name;
+          genCb.checked  = false;
+          genCb.disabled = true;
+          preview.hidden = false;
+          preview.dataset.state = 'loaded';
+          img.onload = null;
+          img.src = URL.createObjectURL(input.files[0]);
+        } else {
+          filename.textContent = '';
+          genCb.disabled = false;
+          preview.hidden = true;
+          img.src = '';
+        }
+      });
     });
   </script>
 

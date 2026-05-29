@@ -588,6 +588,57 @@
     gap: var(--space-2);
   }
 
+  .screenshot-gen__controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .screenshot-gen__or {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+  }
+
+  .screenshot-gen__upload-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+  }
+
+  .screenshot-gen__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .screenshot-gen__upload-btn {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-accent);
+    border: 1.5px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem var(--space-3);
+    transition: background var(--ease-fast), color var(--ease-fast);
+  }
+
+  .screenshot-gen__upload-label:hover .screenshot-gen__upload-btn {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  .screenshot-gen__filename {
+    font-size: var(--text-xs);
+    color: var(--color-text-secondary);
+    max-width: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .screenshot-gen__preview {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
@@ -707,7 +758,7 @@
     border-radius: 4px;
   }
 
-  /* Mobile: phone (390×844 ≈ 0.46 ratio) */
+  /* Mobile: phone (390×660 ≈ 0.59 ratio) */
   .screenshot-gen--framed .screenshot-gen__device[data-viewport="mobile"] {
     background: #1a1a1c;
     border-radius: 2.75rem;

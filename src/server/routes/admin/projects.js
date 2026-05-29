@@ -1,9 +1,13 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { render } from '../../lib/eta.js';
 import { slugify } from '../../lib/slugify.js';
 import { screenshotUrl } from '../../lib/screenshot.js';
+import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer } from '../../lib/cloudinary.js';
 import { getAllProjects, getProjectById } from '../../db/queries/projects.js';
 import { createProject, updateProject, deleteProject } from '../../db/queries/admin.js';
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 const router = Router();
 
@@ -15,9 +19,38 @@ function parseList(v) {
 const VIEWPORTS = {
   desktop: { width: 1280, height: 800  },
   tablet:  { width: 768,  height: 1024 },
-  mobile:  { width: 390,  height: 844  },
+  mobile:  { width: 390,  height: 660  },
 };
 const VIEWPORT_NAMES = Object.keys(VIEWPORTS);
+
+const screenshotFields = VIEWPORT_NAMES.map(vp => ({ name: `upload_${vp}`, maxCount: 1 }));
+
+async function processImages(b, files, slug) {
+  let thumbnail_url = null;
+  let thumbFailed   = false;
+  const generated   = [];
+
+  for (const vp of VIEWPORT_NAMES) {
+    const uploaded = files?.[`upload_${vp}`]?.[0];
+    if (uploaded) {
+      try {
+        const id = await uploadBuffer(uploaded.buffer, slug, vp);
+        generated.push(id);
+        if (!thumbnail_url) thumbnail_url = id;
+      } catch { thumbFailed = true; }
+      continue;
+    }
+    if (b[`gen_${vp}`] === 'on' && b.live_url?.trim()) {
+      try {
+        const id = await screenshotUrl(b.live_url.trim(), slug, vp);
+        generated.push(id);
+        if (!thumbnail_url) thumbnail_url = id;
+      } catch { thumbFailed = true; }
+    }
+  }
+
+  return { thumbnail_url, generated, thumbFailed };
+}
 
 const FLASH = {
   created:           'Project created.',
@@ -27,8 +60,9 @@ const FLASH = {
   deleted:           'Project deleted.',
   'slug-taken':      'That slug is already in use — choose a different one.',
   'not-found':       'Project not found.',
-  'thumb-failed':    'Project saved, but screenshot failed — check the live URL.',
-  error:             'Something went wrong. Please try again.',
+  'thumb-failed':      'Project saved, but screenshot failed — check the live URL.',
+  'thumb-deleted':     'Thumbnail deleted.',
+  error:               'Something went wrong. Please try again.',
 };
 
 function getFlash(req) {
@@ -54,7 +88,7 @@ router.get('/screenshot-preview', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-  const projects = await getAllProjects();
+  const projects = (await getAllProjects()).map(hydrateProject);
   await render(res, 'pages/admin/projects/list', {
     title: 'Projects',
     activeNav: 'projects',
@@ -74,34 +108,10 @@ router.get('/new', async (req, res) => {
   });
 });
 
-router.post('/', async (req, res) => {
-  const b    = req.body;
+router.post('/', upload.fields(screenshotFields), async (req, res) => {
+  const b    = req.body ?? {};
   const slug = b.slug?.trim() || slugify(b.title ?? '');
-  let thumbnail_url = b.thumbnail_url?.trim() || null;
-  let thumbFailed   = false;
-  const generated   = [];
-
-  if (b.live_url?.trim()) {
-    for (const vp of VIEWPORT_NAMES) {
-      if (b[`gen_${vp}`] === 'on') {
-        try {
-          const url = await screenshotUrl(b.live_url.trim(), slug, vp);
-          generated.push(url);
-          if (!thumbnail_url) thumbnail_url = url;
-        } catch {
-          thumbFailed = true;
-        }
-      }
-    }
-  }
-
-  const existingScreenshots = b.screenshots
-    ? b.screenshots.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
-  const mergedScreenshots = [
-    ...existingScreenshots.filter(s => !generated.some(g => s.endsWith(g.split('/').pop()))),
-    ...generated,
-  ];
+  const { thumbnail_url, generated, thumbFailed } = await processImages(b, req.files, slug);
 
   try {
     await createProject({
@@ -116,7 +126,7 @@ router.post('/', async (req, res) => {
       live_url:      b.live_url?.trim() || null,
       repo_url:      b.repo_url?.trim() || null,
       thumbnail_url,
-      screenshots:   JSON.stringify(mergedScreenshots),
+      screenshots:   JSON.stringify(generated),
       status:        b.status ?? 'live',
       featured:      b.featured === 'on' ? 1 : 0,
     });
@@ -136,39 +146,23 @@ router.get('/:id/edit', async (req, res) => {
     activeNav: 'projects',
     flash: getFlash(req),
     project,
+    thumbnailPreview: resolveUrl(project.thumbnail_url),
     isEdit: true,
   });
 });
 
-router.post('/:id', async (req, res) => {
-  const id   = Number(req.params.id);
-  const b    = req.body;
-  const slug = b.slug?.trim() || slugify(b.title ?? '');
-  let thumbnail_url = b.thumbnail_url?.trim() || null;
-  let thumbFailed   = false;
-  const generated   = [];
+router.post('/:id', upload.fields(screenshotFields), async (req, res) => {
+  const id      = Number(req.params.id);
+  const b       = req.body ?? {};
+  const slug    = b.slug?.trim() || slugify(b.title ?? '');
+  const current = await getProjectById(id);
+  const { thumbnail_url: newThumb, generated, thumbFailed } = await processImages(b, req.files, slug);
 
-  if (b.live_url?.trim()) {
-    for (const vp of VIEWPORT_NAMES) {
-      if (b[`gen_${vp}`] === 'on') {
-        try {
-          const url = await screenshotUrl(b.live_url.trim(), slug, vp);
-          generated.push(url);
-          if (!thumbnail_url) thumbnail_url = url;
-        } catch {
-          thumbFailed = true;
-        }
-      }
-    }
-  }
+  const thumbnail_url = newThumb ?? current?.thumbnail_url ?? null;
 
-  const existingScreenshots = b.screenshots
-    ? b.screenshots.split(',').map(s => s.trim()).filter(Boolean)
-    : [];
-  const mergedScreenshots = [
-    ...existingScreenshots.filter(s => !generated.some(g => s.endsWith(g.split('/').pop()))),
-    ...generated,
-  ];
+  const existingScreenshots = (current?.screenshots || [])
+    .filter(s => !generated.some(g => s === g || s.endsWith(g.split('/').pop())));
+  const mergedScreenshots = [...existingScreenshots, ...generated];
 
   try {
     await updateProject(id, {
@@ -193,6 +187,23 @@ router.post('/:id', async (req, res) => {
     const key = err.message?.includes('UNIQUE') ? 'slug-taken' : 'error';
     res.redirect(`/admin/projects/${id}/edit?error=${key}`);
   }
+});
+
+router.post('/:id/delete-thumbnail', async (req, res) => {
+  const id      = Number(req.params.id);
+  const project = await getProjectById(id);
+  if (!project) return res.redirect('/admin/projects?error=not-found');
+  if (project.thumbnail_url && isCloudinaryId(project.thumbnail_url)) {
+    await deleteAsset(project.thumbnail_url).catch(() => {});
+  }
+  await updateProject(id, {
+    ...project,
+    thumbnail_url: null,
+    tech_stack:    JSON.stringify(project.tech_stack),
+    features:      JSON.stringify(project.features),
+    screenshots:   JSON.stringify(project.screenshots),
+  });
+  res.redirect(`/admin/projects/${id}/edit?success=thumb-deleted`);
 });
 
 router.post('/:id/delete', async (req, res) => {
