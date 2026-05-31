@@ -3,14 +3,145 @@ const EXPORT_H = 720;
 const PREVIEW_W = 800;
 const PREVIEW_H = 450;
 
+// Frame configs — all dimensions in PREVIEW_W (800px) coordinate space
+const FRAMES = {
+  desktop: {
+    type: 'desktop',
+    barH: 28, barR: 6,
+    barColor: '#e2e2e5', barBorder: '#c4c4cc',
+    dots: [
+      { x: 10, y: 14, r: 4, fill: '#ff5f57' },
+      { x: 22, y: 14, r: 4, fill: '#febc2e' },
+      { x: 34, y: 14, r: 4, fill: '#28c840' },
+    ],
+    urlBar: { x: 44, y: 6, w: 714, h: 14, r: 3 },
+  },
+  tablet: {
+    type: 'portrait',
+    outerW: 220, outerH: 320, outerR: 14,
+    bezColor: '#1c1c1e', bezBorder: '#3a3a3c',
+    padT: 12, padR: 8, padB: 16, padL: 8, screenR: 4,
+    homeBar: { w: 40, h: 3, color: '#555', bottom: 5 },
+  },
+  mobile: {
+    type: 'portrait',
+    outerW: 168, outerH: 340, outerR: 36,
+    bezColor: '#1a1a1c', bezBorder: '#3a3a3c',
+    padT: 28, padR: 10, padB: 22, padL: 10, screenR: 10,
+    island: { w: 54, h: 14, top: 8 },
+    homeBar: { w: 40, h: 3, color: 'rgba(255,255,255,0.35)', bottom: 7 },
+    innerGlow: 'rgba(255,255,255,0.07)',
+    shadow: true,
+  },
+};
+
+function getScreenRect(cfg, w, h) {
+  const s = w / PREVIEW_W;
+  if (cfg.type === 'desktop') {
+    return { x: 0, y: cfg.barH * s, w, h: h - cfg.barH * s, r: 0 };
+  }
+  const cx = w / 2, cy = h / 2;
+  const fw = cfg.outerW * s, fh = cfg.outerH * s;
+  return {
+    x: cx - fw / 2 + cfg.padL * s,
+    y: cy - fh / 2 + cfg.padT * s,
+    w: fw - (cfg.padL + cfg.padR) * s,
+    h: fh - (cfg.padT + cfg.padB) * s,
+    r: cfg.screenR * s,
+  };
+}
+
+function rr(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+}
+
+function makeFrameOverlay(cfg, w, h) {
+  const off = Object.assign(document.createElement('canvas'), { width: w, height: h });
+  const ctx = off.getContext('2d');
+  const s = w / PREVIEW_W;
+
+  if (cfg.type === 'desktop') {
+    const barH = cfg.barH * s;
+    ctx.fillStyle = cfg.barColor;
+    rr(ctx, 0, 0, w, barH, [cfg.barR * s, cfg.barR * s, 0, 0]);
+    ctx.fill();
+    ctx.strokeStyle = cfg.barBorder;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, barH); ctx.lineTo(w, barH);
+    ctx.stroke();
+    cfg.dots.forEach(d => {
+      ctx.beginPath();
+      ctx.arc(d.x * s, d.y * s, d.r * s, 0, Math.PI * 2);
+      ctx.fillStyle = d.fill;
+      ctx.fill();
+    });
+    const ub = cfg.urlBar;
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = '#d0d0d8';
+    ctx.lineWidth = 1;
+    rr(ctx, ub.x * s, ub.y * s, ub.w * s, ub.h * s, ub.r * s);
+    ctx.fill(); ctx.stroke();
+
+  } else {
+    const cx = w / 2, cy = h / 2;
+    const fw = cfg.outerW * s, fh = cfg.outerH * s;
+    const fx = cx - fw / 2, fy = cy - fh / 2;
+    const outerR = cfg.outerR * s;
+
+    if (cfg.shadow) {
+      ctx.shadowColor = 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = 40 * s;
+      ctx.shadowOffsetY = 16 * s;
+    }
+    ctx.fillStyle = cfg.bezColor;
+    rr(ctx, fx, fy, fw, fh, outerR);
+    ctx.fill();
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+    ctx.strokeStyle = cfg.bezBorder;
+    ctx.lineWidth = 2 * s;
+    rr(ctx, fx, fy, fw, fh, outerR);
+    ctx.stroke();
+
+    if (cfg.innerGlow) {
+      ctx.strokeStyle = cfg.innerGlow;
+      ctx.lineWidth = 2 * s;
+      rr(ctx, fx + s, fy + s, fw - 2 * s, fh - 2 * s, outerR - s);
+      ctx.stroke();
+    }
+
+    // Cut out screen area
+    const sc = getScreenRect(cfg, w, h);
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = '#000';
+    rr(ctx, sc.x, sc.y, sc.w, sc.h, sc.r);
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    if (cfg.island) {
+      const { w: iw, h: ih, top: it } = cfg.island;
+      ctx.fillStyle = '#000';
+      rr(ctx, cx - (iw * s) / 2, fy + it * s, iw * s, ih * s, (ih * s) / 2);
+      ctx.fill();
+    }
+    if (cfg.homeBar) {
+      const { w: hw, h: hh, color, bottom: hb } = cfg.homeBar;
+      ctx.fillStyle = color;
+      rr(ctx, cx - (hw * s) / 2, fy + fh - hb * s - hh * s, hw * s, hh * s, (hh * s) / 2);
+      ctx.fill();
+    }
+  }
+  return off;
+}
+
 function drawTechBackground(ctx, w, h) {
   const isDark = document.documentElement.dataset.theme === 'dark';
   const off = Object.assign(document.createElement('canvas'), { width: w, height: h });
   const oc  = off.getContext('2d');
-
   oc.fillStyle = isDark ? '#181824' : '#eef0f8';
   oc.fillRect(0, 0, w, h);
-
   const dotColor = isDark ? 'rgba(107,141,232,0.28)' : 'rgba(65,99,191,0.20)';
   oc.fillStyle = dotColor;
   const spacing = 18;
@@ -21,83 +152,97 @@ function drawTechBackground(ctx, w, h) {
       oc.fill();
     }
   }
-
   ctx.filter = 'blur(7px)';
   ctx.drawImage(off, 0, 0);
   ctx.filter = 'none';
 }
 
-function drawFrame(ctx, img, state, w, h) {
+function drawScene(ctx, img, state, w, h) {
+  const s = w / PREVIEW_W;
+  const cfg = FRAMES[state.frame] ?? null;
+
   drawTechBackground(ctx, w, h);
+
+  if (cfg) {
+    // Clip image to the device screen area
+    const sc = getScreenRect(cfg, w, h);
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(sc.x, sc.y, sc.w, sc.h, sc.r);
+    ctx.clip();
+  }
+
+  // Draw image
   ctx.save();
-  ctx.translate(w / 2 + state.offsetX * (w / PREVIEW_W), h / 2 + state.offsetY * (h / PREVIEW_H));
+  ctx.translate(w / 2 + state.offsetX * s, h / 2 + state.offsetY * s);
   ctx.rotate((state.rotation * Math.PI) / 180);
-  const baseScale = state.scale * (w / PREVIEW_W);
-  ctx.scale(baseScale, baseScale);
+  ctx.scale(state.scale * s, state.scale * s);
   ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
   ctx.restore();
+
+  if (cfg) {
+    ctx.restore(); // remove clip
+    ctx.drawImage(makeFrameOverlay(cfg, w, h), 0, 0);
+  }
 }
 
 function fitScale(img, w, h) {
-  const scaleX = w / img.naturalWidth;
-  const scaleY = h / img.naturalHeight;
-  return Math.max(scaleX, scaleY);
+  return Math.max(w / img.naturalWidth, h / img.naturalHeight);
 }
 
 export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }) {
-  const openBtn     = document.getElementById(openBtnId);
-  const previewImg  = document.getElementById(previewImgId);
-  const modal       = document.getElementById('img-editor-modal');
-  const backdrop    = modal.querySelector('.img-editor-modal__backdrop');
-  const canvas      = document.getElementById('img-editor-canvas');
-  const ctx         = canvas.getContext('2d');
-  const zoomSlider  = document.getElementById('img-editor-zoom');
-  const rotSlider   = document.getElementById('img-editor-rotation');
-  const rotateCCW   = document.getElementById('img-editor-rotate-ccw');
-  const rotateCW    = document.getElementById('img-editor-rotate-cw');
-  const resetBtn    = document.getElementById('img-editor-reset');
-  const cancelBtn   = document.getElementById('img-editor-cancel');
-  const saveBtn     = document.getElementById('img-editor-save');
-  const statusEl    = document.getElementById('img-editor-status');
+  const openBtn    = document.getElementById(openBtnId);
+  const previewImg = document.getElementById(previewImgId);
+  const modal      = document.getElementById('img-editor-modal');
+  const backdrop   = modal.querySelector('.img-editor-modal__backdrop');
+  const canvas     = document.getElementById('img-editor-canvas');
+  const ctx        = canvas.getContext('2d');
+  const zoomSlider = document.getElementById('img-editor-zoom');
+  const rotSlider  = document.getElementById('img-editor-rotation');
+  const rotateCCW  = document.getElementById('img-editor-rotate-ccw');
+  const rotateCW   = document.getElementById('img-editor-rotate-cw');
+  const resetBtn   = document.getElementById('img-editor-reset');
+  const cancelBtn  = document.getElementById('img-editor-cancel');
+  const saveBtn    = document.getElementById('img-editor-save');
+  const statusEl   = document.getElementById('img-editor-status');
 
   canvas.width  = PREVIEW_W;
   canvas.height = PREVIEW_H;
 
-  let img     = null;
-  let state   = { offsetX: 0, offsetY: 0, scale: 1, rotation: 0 };
-  let initial = { scale: 1 };
-  let dragging = false;
+  let img      = null;
+  let state    = { offsetX: 0, offsetY: 0, scale: 1, rotation: 0, frame: 'none' };
+  let baseScale = 1;
+  let dragging  = false;
   let dragStart = { x: 0, y: 0, ox: 0, oy: 0 };
 
   function redraw() {
     if (!img) return;
-    drawFrame(ctx, img, state, PREVIEW_W, PREVIEW_H);
+    drawScene(ctx, img, state, PREVIEW_W, PREVIEW_H);
   }
 
   function resetState() {
-    const s = fitScale(img, PREVIEW_W, PREVIEW_H);
-    initial.scale = s;
-    state = { offsetX: 0, offsetY: 0, scale: s, rotation: 0 };
-    zoomSlider.value  = '0';
-    rotSlider.value   = '0';
+    const cfg = FRAMES[state.frame] ?? null;
+    let fitW = PREVIEW_W, fitH = PREVIEW_H;
+    if (cfg) {
+      const sc = getScreenRect(cfg, PREVIEW_W, PREVIEW_H);
+      fitW = sc.w; fitH = sc.h;
+    }
+    baseScale = Math.max(fitW / img.naturalWidth, fitH / img.naturalHeight);
+    state = { ...state, offsetX: 0, offsetY: 0, scale: baseScale, rotation: 0 };
+    zoomSlider.value = '0';
+    rotSlider.value  = '0';
   }
 
   function scaleFromSlider(v) {
-    return initial.scale * Math.pow(2, parseFloat(v));
+    return baseScale * Math.pow(2, parseFloat(v));
   }
 
   function openModal() {
     img = new Image();
     img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      resetState();
-      redraw();
-    };
-    img.onerror = () => {
-      showStatus('Failed to load image.', true);
-    };
+    img.onload = () => { resetState(); redraw(); };
+    img.onerror = () => showStatus('Failed to load image.', true);
     img.src = proxyUrl + '?t=' + Date.now();
-
     modal.hidden = false;
     modal.classList.remove('is-closing');
     document.body.style.overflow = 'hidden';
@@ -127,8 +272,7 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
 
   async function exportBlob() {
     const out = Object.assign(document.createElement('canvas'), { width: EXPORT_W, height: EXPORT_H });
-    const octx = out.getContext('2d');
-    drawFrame(octx, img, state, EXPORT_W, EXPORT_H);
+    drawScene(out.getContext('2d'), img, state, EXPORT_W, EXPORT_H);
     return new Promise((resolve, reject) => {
       out.toBlob(b => b ? resolve(b) : reject(new Error('toBlob failed')), 'image/png');
     });
@@ -141,7 +285,7 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
       const blob = await exportBlob();
       const form = new FormData();
       form.append('image', blob, 'thumbnail.png');
-      const res  = await fetch(`/admin/projects/${projectId}/edit-thumbnail`, { method: 'POST', body: form });
+      const res = await fetch(`/admin/projects/${projectId}/edit-thumbnail`, { method: 'POST', body: form });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const { url } = await res.json();
       previewImg.src = url;
@@ -153,7 +297,18 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
     }
   }
 
-  // ── Controls ──────────────────────────────────────────────────────────────
+  // ── Frame selector ────────────────────────────────────────────────────────
+
+  modal.querySelectorAll('[data-frame]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      modal.querySelectorAll('[data-frame]').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      state.frame = btn.dataset.frame;
+      if (img) { resetState(); redraw(); }
+    });
+  });
+
+  // ── Zoom / rotate controls ────────────────────────────────────────────────
 
   zoomSlider.addEventListener('input', () => {
     if (!img) return;
@@ -169,7 +324,7 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
 
   rotateCCW.addEventListener('click', () => {
     if (!img) return;
-    state.rotation = ((state.rotation - 90) + 360) % 360;
+    state.rotation = ((state.rotation - 90 + 360) % 360);
     if (state.rotation > 180) state.rotation -= 360;
     rotSlider.value = String(state.rotation);
     redraw();
@@ -177,22 +332,18 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
 
   rotateCW.addEventListener('click', () => {
     if (!img) return;
-    state.rotation = ((state.rotation + 90) + 360) % 360;
+    state.rotation = ((state.rotation + 90 + 360) % 360);
     if (state.rotation > 180) state.rotation -= 360;
     rotSlider.value = String(state.rotation);
     redraw();
   });
 
-  resetBtn.addEventListener('click', () => {
-    if (!img) return;
-    resetState();
-    redraw();
-  });
+  resetBtn.addEventListener('click', () => { if (img) { resetState(); redraw(); } });
 
-  // ── Drag to pan ───────────────────────────────────────────────────────────
+  // ── Pan ───────────────────────────────────────────────────────────────────
 
   canvas.addEventListener('mousedown', e => {
-    dragging  = true;
+    dragging = true;
     dragStart = { x: e.clientX, y: e.clientY, ox: state.offsetX, oy: state.offsetY };
     canvas.style.cursor = 'grabbing';
   });
@@ -204,17 +355,12 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
     redraw();
   });
 
-  window.addEventListener('mouseup', () => {
-    dragging = false;
-    canvas.style.cursor = 'grab';
-  });
-
-  // ── Touch pan ─────────────────────────────────────────────────────────────
+  window.addEventListener('mouseup', () => { dragging = false; canvas.style.cursor = 'grab'; });
 
   canvas.addEventListener('touchstart', e => {
     if (e.touches.length !== 1) return;
     const t = e.touches[0];
-    dragging  = true;
+    dragging = true;
     dragStart = { x: t.clientX, y: t.clientY, ox: state.offsetX, oy: state.offsetY };
   }, { passive: true });
 
@@ -228,8 +374,6 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
   }, { passive: false });
 
   canvas.addEventListener('touchend', () => { dragging = false; });
-
-  // ── Scroll to zoom ────────────────────────────────────────────────────────
 
   canvas.addEventListener('wheel', e => {
     if (!img) return;
@@ -248,8 +392,5 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
   document.getElementById('img-editor-close').addEventListener('click', closeModal);
   backdrop.addEventListener('click', closeModal);
   saveBtn.addEventListener('click', save);
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && !modal.hidden) closeModal();
-  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
 }

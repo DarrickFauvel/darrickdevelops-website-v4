@@ -287,6 +287,15 @@
         <button type="button" id="img-editor-rotate-cw"  class="btn btn--ghost btn--sm">↻ 90°</button>
       </div>
     </div>
+    <div class="img-editor-modal__frame-row">
+      <span class="img-editor-modal__frame-label">Frame</span>
+      <div class="img-editor-modal__frame-btns">
+        <button type="button" class="img-editor-frame-btn is-active" data-frame="none">None</button>
+        <button type="button" class="img-editor-frame-btn" data-frame="desktop">Desktop</button>
+        <button type="button" class="img-editor-frame-btn" data-frame="tablet">Tablet</button>
+        <button type="button" class="img-editor-frame-btn" data-frame="mobile">Mobile</button>
+      </div>
+    </div>
     <div class="img-editor-modal__footer">
       <button type="button" id="img-editor-reset"  class="btn btn--ghost btn--sm">Reset</button>
       <button type="button" id="img-editor-cancel" class="btn btn--ghost">Cancel</button>
