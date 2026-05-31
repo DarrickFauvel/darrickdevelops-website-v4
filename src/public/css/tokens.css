@@ -3,18 +3,39 @@
 
 @layer tokens {
   :root {
+    /* Adapts to OS preference; [data-theme] overrides below */
+    color-scheme: light dark;
+
     /* colors */
-    --color-bg:             #f9f9f9;
-    --color-surface:        #ffffff;
-    --color-border:         #e5e7eb;
-    --color-text-primary:   #1f1f2a;
-    --color-text-secondary: #6b7280;
-    --color-accent:         #4163bf;
-    --color-accent-hover:   #3352a3;
+    --color-bg:             light-dark(#f9f9f9, #111118);
+    --color-surface:        light-dark(#ffffff, #1c1c26);
+    --color-border:         light-dark(#e5e7eb, #2e2e40);
+    --color-text-primary:   light-dark(#1f1f2a, #e8e8f0);
+    --color-text-secondary: light-dark(#6b7280, #9ca3af);
+    --color-accent:         light-dark(#4163bf, #6b8de8);
+    --color-accent-hover:   light-dark(#3352a3, #8099ef);
     --color-success:        #6cc356;
     --color-error:          #ef4123;
     --color-warning:        #f59e28;
     --color-blue-light:     #4c8bbf;
+
+    /* semantic subtle — badges, flash messages, feedback */
+    --color-success-subtle-bg:   light-dark(#dcfce7, #14532d);
+    --color-success-subtle-text: light-dark(#166534, #86efac);
+    --color-error-subtle-bg:     light-dark(#fee2e2, #7f1d1d);
+    --color-error-subtle-text:   light-dark(#991b1b, #fca5a5);
+    --color-info-subtle-bg:      light-dark(#dbeafe, #1e3a5f);
+    --color-info-subtle-text:    light-dark(#1e40af, #93c5fd);
+    --color-warning-subtle-bg:   light-dark(#fef9c3, #78350f);
+    --color-warning-subtle-text: light-dark(#854d0e, #fcd34d);
+    --color-muted-subtle-bg:     light-dark(#f3f4f6, #2d2d40);
+    --color-muted-subtle-text:   light-dark(#6b7280, #9ca3af);
+    --color-danger-subtle-bg:    light-dark(#ffe4e6, #4c0519);
+    --color-danger-subtle-text:  light-dark(#9f1239, #fda4af);
+    --color-purple-subtle-bg:    light-dark(#f3e8ff, #3b0764);
+    --color-purple-subtle-text:  light-dark(#6b21a8, #d8b4fe);
+    --color-tech-badge-bg:       light-dark(#f3f4f6, #2d2d40);
+    --color-tech-badge-text:     light-dark(#374151, #c4c4d4);
 
     /* spacing (4px base) */
     --space-1:  0.25rem;
@@ -58,4 +79,8 @@
     --container-max:     72rem;
     --container-padding: clamp(var(--space-4), 5vw, var(--space-8));
   }
+
+  /* Manual overrides — come after :root so they win on equal specificity */
+  [data-theme="light"] { color-scheme: light; }
+  [data-theme="dark"]  { color-scheme: dark;  }
 }

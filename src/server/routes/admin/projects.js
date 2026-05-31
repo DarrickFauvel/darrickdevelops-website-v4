@@ -3,9 +3,9 @@ import multer from 'multer';
 import { render } from '../../lib/eta.js';
 import { slugify } from '../../lib/slugify.js';
 import { screenshotUrl } from '../../lib/screenshot.js';
-import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer } from '../../lib/cloudinary.js';
+import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer, signedUrl } from '../../lib/cloudinary.js';
 import { getAllProjects, getProjectById } from '../../db/queries/projects.js';
-import { createProject, updateProject, deleteProject } from '../../db/queries/admin.js';
+import { createProject, updateProject, deleteProject, updateThumbnailUrl } from '../../db/queries/admin.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -84,6 +84,36 @@ router.get('/screenshot-preview', async (req, res) => {
     Readable.fromWeb(upstream.body).pipe(res);
   } catch {
     res.status(502).end();
+  }
+});
+
+router.get('/:id/thumbnail-raw', async (req, res) => {
+  const project = await getProjectById(Number(req.params.id));
+  if (!project?.thumbnail_url) return res.status(404).end();
+  const url = resolveUrl(project.thumbnail_url);
+  if (!url) return res.status(404).end();
+  try {
+    const upstream = await fetch(url);
+    if (!upstream.ok) return res.status(502).end();
+    res.set('Content-Type', upstream.headers.get('content-type') || 'image/png');
+    res.set('Cache-Control', 'private, max-age=60');
+    const { Readable } = await import('stream');
+    Readable.fromWeb(upstream.body).pipe(res);
+  } catch {
+    res.status(502).end();
+  }
+});
+
+router.post('/:id/edit-thumbnail', upload.single('image'), async (req, res) => {
+  const id      = Number(req.params.id);
+  const project = await getProjectById(id);
+  if (!project || !req.file) return res.status(400).json({ error: 'bad request' });
+  try {
+    const publicId = await uploadBuffer(req.file.buffer, project.slug, 'thumbnail');
+    await updateThumbnailUrl(id, publicId);
+    res.json({ url: signedUrl(publicId) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
