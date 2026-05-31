@@ -63,6 +63,13 @@ export async function deleteProject(id) {
   await db.execute({ sql: 'DELETE FROM projects WHERE id=?', args: [id] });
 }
 
+export async function updateThumbnailUrl(id, thumbnailUrl) {
+  await db.execute({
+    sql:  'UPDATE projects SET thumbnail_url=? WHERE id=?',
+    args: [thumbnailUrl, id],
+  });
+}
+
 // ── FM Challenges ─────────────────────────────────────────────────────────────
 
 export async function createChallenge(data) {
