@@ -84,6 +84,13 @@ export async function clearOriginalThumbnailUrl(id) {
   });
 }
 
+export async function updateThumbnailFrame(id, frame) {
+  await db.execute({
+    sql:  "UPDATE projects SET thumbnail_frame=? WHERE id=?",
+    args: [frame === 'none' ? null : frame, id],
+  });
+}
+
 // ── FM Challenges ─────────────────────────────────────────────────────────────
 
 export async function createChallenge(data) {

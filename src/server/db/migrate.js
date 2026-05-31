@@ -19,6 +19,7 @@ for (const stmt of schema.split(';').map(s => s.trim()).filter(Boolean)) {
 // Additive column migrations
 const alterations = [
   'ALTER TABLE projects ADD COLUMN original_thumbnail_url TEXT',
+  'ALTER TABLE projects ADD COLUMN thumbnail_frame TEXT',
 ];
 for (const stmt of alterations) {
   try { await db.execute(stmt); } catch { /* already exists */ }

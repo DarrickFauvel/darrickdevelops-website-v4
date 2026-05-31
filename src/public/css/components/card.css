@@ -21,6 +21,81 @@
     aspect-ratio: 16 / 9;
     object-fit: cover;
     background: var(--color-border);
+    display: block;
+  }
+
+  /* ── Device frame wrapper ─────────────────────────────────────────────── */
+
+  .card__image-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .card__image-frame .card__image {
+    aspect-ratio: unset;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Desktop: browser chrome bar */
+  .card__image-frame[data-frame="desktop"] {
+    background: #111;
+  }
+  .card__image-frame[data-frame="desktop"]::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 13%;
+    background: #e2e2e5;
+    z-index: 1;
+  }
+  .card__image-frame[data-frame="desktop"]::after {
+    content: '';
+    position: absolute;
+    top: calc(6.5% - 3px);
+    left: 3%;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #ff5f57;
+    box-shadow: 10px 0 0 #febc2e, 20px 0 0 #28c840;
+    z-index: 2;
+  }
+  .card__image-frame[data-frame="desktop"] .card__image {
+    top: 13%; height: 87%;
+  }
+
+  /* Mobile / Tablet: device centered on dark background */
+  .card__image-frame[data-frame="mobile"],
+  .card__image-frame[data-frame="tablet"] {
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card__image-frame[data-frame="mobile"] .card__image,
+  .card__image-frame[data-frame="tablet"] .card__image {
+    position: relative;
+    inset: unset;
+    width: auto;
+    height: 88%;
+    object-fit: cover;
+  }
+
+  .card__image-frame[data-frame="mobile"] .card__image {
+    aspect-ratio: 172 / 346;
+    border-radius: 6%;
+    box-shadow: 0 0 0 5px #1a1a1c, 0 0 0 7px #3a3a3c;
+  }
+
+  .card__image-frame[data-frame="tablet"] .card__image {
+    aspect-ratio: 242 / 352;
+    border-radius: 3%;
+    box-shadow: 0 0 0 5px #1c1c1e, 0 0 0 7px #3a3a3c;
   }
 
   .card__image-placeholder {

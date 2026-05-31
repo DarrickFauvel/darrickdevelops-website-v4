@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS projects (
   repo_url      TEXT,
   thumbnail_url          TEXT,
   original_thumbnail_url TEXT,
+  thumbnail_frame        TEXT,
   screenshots            TEXT DEFAULT '[]',
   status        TEXT DEFAULT 'live' CHECK (status IN ('live','in-progress','archived')),
   featured      INTEGER DEFAULT 0,

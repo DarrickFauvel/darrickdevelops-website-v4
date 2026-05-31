@@ -29,7 +29,11 @@
       <% it.projects.forEach(p => { %>
       <project-card>
         <% if (p.thumbnail_url) { %>
+        <% if (p.thumbnail_frame) { %>
+        <div class="card__image-frame" data-frame="<%= p.thumbnail_frame %>"><img src="<%= p.thumbnail_url %>" alt="<%= p.title %>" class="card__image"></div>
+        <% } else { %>
         <img src="<%= p.thumbnail_url %>" alt="<%= p.title %>" class="card__image">
+        <% } %>
         <% } else { %>
         <div class="card__image-placeholder" aria-hidden="true"></div>
         <% } %>

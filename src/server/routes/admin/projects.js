@@ -5,7 +5,7 @@ import { slugify } from '../../lib/slugify.js';
 import { screenshotUrl } from '../../lib/screenshot.js';
 import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer, signedUrl } from '../../lib/cloudinary.js';
 import { getAllProjects, getProjectById } from '../../db/queries/projects.js';
-import { createProject, updateProject, deleteProject, updateThumbnailUrl, setOriginalThumbnailUrl, clearOriginalThumbnailUrl } from '../../db/queries/admin.js';
+import { createProject, updateProject, deleteProject, updateThumbnailUrl, setOriginalThumbnailUrl, clearOriginalThumbnailUrl, updateThumbnailFrame } from '../../db/queries/admin.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -124,6 +124,7 @@ router.post('/:id/edit-thumbnail', upload.single('image'), async (req, res) => {
     }
     const publicId = await uploadBuffer(req.file.buffer, project.slug, 'thumbnail');
     await updateThumbnailUrl(id, publicId);
+    await updateThumbnailFrame(id, req.body?.frame ?? 'none');
     res.json({ url: signedUrl(publicId) });
   } catch (err) {
     res.status(500).json({ error: err.message });
