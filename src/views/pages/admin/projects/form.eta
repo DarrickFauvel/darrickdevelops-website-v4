@@ -252,7 +252,7 @@
           formaction="/admin/projects/<%= it.project.id %>/delete-thumbnail"
           formmethod="POST"
           formenctype="application/x-www-form-urlencoded"
-          class="btn btn--sm admin-btn-danger"
+          class="btn btn--ghost btn--sm admin-btn-danger"
         >Delete</button>
       </div>
     </div>
