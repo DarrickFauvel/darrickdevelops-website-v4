@@ -947,6 +947,73 @@
     }
   }
 
+  /* ── Confirm Modal ──────────────────────────────────────────────────────────── */
+
+  .confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    animation: confirm-modal-in 180ms var(--ease-base) both;
+    padding: var(--space-4);
+  }
+
+  .confirm-modal[hidden] { display: none; }
+
+  @keyframes confirm-modal-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .confirm-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .confirm-modal__box {
+    position: relative;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lift);
+    padding: var(--space-6);
+    width: 100%;
+    max-width: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    animation: confirm-modal-box-in 180ms var(--ease-base) both;
+  }
+
+  @keyframes confirm-modal-box-in {
+    from { opacity: 0; transform: translateY(4px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);    }
+  }
+
+  .confirm-modal__title {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .confirm-modal__body {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .confirm-modal__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+  }
+
   /* ── Image Editor Modal ────────────────────────────────────────────────────── */
 
   .img-editor-modal {

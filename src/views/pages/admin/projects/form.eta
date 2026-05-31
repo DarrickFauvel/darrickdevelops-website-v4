@@ -91,14 +91,7 @@
            style="max-width:16rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
       <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap">
         <button type="button" id="js-edit-thumb-btn" class="btn btn--ghost btn--sm">Edit Image</button>
-        <button
-          type="submit"
-          formaction="/admin/projects/<%= it.project.id %>/delete-thumbnail"
-          formmethod="POST"
-          formenctype="application/x-www-form-urlencoded"
-          class="btn btn--ghost btn--sm"
-          onclick="return confirm('Delete this thumbnail? This cannot be undone.')"
-        >Delete thumbnail</button>
+        <button type="button" id="js-delete-thumb-btn" class="btn btn--ghost btn--sm">Delete thumbnail</button>
       </div>
     </div>
     <% } %>
@@ -255,6 +248,39 @@
       });
     });
   </script>
+
+  <% if (it.thumbnailPreview) { %>
+  <div id="thumb-delete-modal" class="confirm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="thumb-delete-title">
+    <div class="confirm-modal__backdrop"></div>
+    <div class="confirm-modal__box">
+      <p class="confirm-modal__title" id="thumb-delete-title">Delete thumbnail?</p>
+      <p class="confirm-modal__body">This cannot be undone.</p>
+      <div class="confirm-modal__actions">
+        <button type="button" id="thumb-delete-cancel" class="btn btn--ghost btn--sm">Cancel</button>
+        <button
+          type="submit"
+          formaction="/admin/projects/<%= it.project.id %>/delete-thumbnail"
+          formmethod="POST"
+          formenctype="application/x-www-form-urlencoded"
+          class="btn btn--sm admin-btn-danger"
+        >Delete</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    {
+      const btn    = document.getElementById('js-delete-thumb-btn');
+      const modal  = document.getElementById('thumb-delete-modal');
+      const cancel = document.getElementById('thumb-delete-cancel');
+      const open   = () => { modal.hidden = false; cancel.focus(); };
+      const close  = () => { modal.hidden = true; };
+      btn.addEventListener('click', open);
+      cancel.addEventListener('click', close);
+      modal.querySelector('.confirm-modal__backdrop').addEventListener('click', close);
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
+    }
+  </script>
+  <% } %>
 
   <div class="admin-form-actions">
     <button type="submit" class="btn btn--primary">
