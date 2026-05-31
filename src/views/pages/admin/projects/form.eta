@@ -270,6 +270,7 @@
   <div class="img-editor-modal__box">
     <div class="img-editor-modal__header">
       <span>Edit Thumbnail</span>
+      <button type="button" id="img-editor-use-original" class="img-editor-modal__use-original" hidden>Use original</button>
       <button type="button" id="img-editor-close" class="img-editor-modal__close" aria-label="Close">✕</button>
     </div>
     <canvas id="img-editor-canvas" class="img-editor-modal__canvas"></canvas>
@@ -307,10 +308,11 @@
 <script type="module">
   import { initImageEditor } from '/js/components/image-editor.js';
   initImageEditor({
-    projectId:    <%= it.project.id %>,
-    proxyUrl:     '/admin/projects/<%= it.project.id %>/thumbnail-raw',
-    previewImgId: 'js-thumb-preview',
-    openBtnId:    'js-edit-thumb-btn',
+    projectId:       <%= it.project.id %>,
+    proxyUrl:        '/admin/projects/<%= it.project.id %>/thumbnail-raw',
+    originalProxyUrl: '<%= it.hasOriginalThumbnail ? "/admin/projects/" + it.project.id + "/original-thumbnail-raw" : "" %>',
+    previewImgId:    'js-thumb-preview',
+    openBtnId:       'js-edit-thumb-btn',
   });
 </script>
 <% } %>

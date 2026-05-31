@@ -190,7 +190,7 @@ function fitScale(img, w, h) {
   return Math.max(w / img.naturalWidth, h / img.naturalHeight);
 }
 
-export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }) {
+export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, previewImgId, openBtnId }) {
   const openBtn    = document.getElementById(openBtnId);
   const previewImg = document.getElementById(previewImgId);
   const modal      = document.getElementById('img-editor-modal');
@@ -201,10 +201,11 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
   const rotSlider  = document.getElementById('img-editor-rotation');
   const rotateCCW  = document.getElementById('img-editor-rotate-ccw');
   const rotateCW   = document.getElementById('img-editor-rotate-cw');
-  const resetBtn   = document.getElementById('img-editor-reset');
-  const cancelBtn  = document.getElementById('img-editor-cancel');
-  const saveBtn    = document.getElementById('img-editor-save');
-  const statusEl   = document.getElementById('img-editor-status');
+  const resetBtn      = document.getElementById('img-editor-reset');
+  const cancelBtn     = document.getElementById('img-editor-cancel');
+  const saveBtn       = document.getElementById('img-editor-save');
+  const statusEl      = document.getElementById('img-editor-status');
+  const useOriginalBtn = document.getElementById('img-editor-use-original');
 
   canvas.width  = PREVIEW_W;
   canvas.height = PREVIEW_H;
@@ -237,12 +238,17 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
     return baseScale * Math.pow(2, parseFloat(v));
   }
 
-  function openModal() {
+  function loadImage(url) {
     img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => { resetState(); redraw(); };
     img.onerror = () => showStatus('Failed to load image.', true);
-    img.src = proxyUrl + '?t=' + Date.now();
+    img.src = url + '?t=' + Date.now();
+  }
+
+  function openModal() {
+    loadImage(proxyUrl);
+    useOriginalBtn.hidden = !originalProxyUrl;
     modal.hidden = false;
     modal.classList.remove('is-closing');
     document.body.style.overflow = 'hidden';
@@ -393,4 +399,11 @@ export function initImageEditor({ projectId, proxyUrl, previewImgId, openBtnId }
   backdrop.addEventListener('click', closeModal);
   saveBtn.addEventListener('click', save);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+  if (useOriginalBtn && originalProxyUrl) {
+    useOriginalBtn.addEventListener('click', () => {
+      hideStatus();
+      loadImage(originalProxyUrl);
+    });
+  }
 }

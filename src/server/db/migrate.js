@@ -8,7 +8,20 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const schema = await readFile(join(__dirname, 'schema.sql'), 'utf8');
 
 for (const stmt of schema.split(';').map(s => s.trim()).filter(Boolean)) {
-  await db.execute(stmt);
+  try {
+    await db.execute(stmt);
+  } catch (err) {
+    if (err.message?.includes('duplicate column')) continue;
+    throw err;
+  }
+}
+
+// Additive column migrations
+const alterations = [
+  'ALTER TABLE projects ADD COLUMN original_thumbnail_url TEXT',
+];
+for (const stmt of alterations) {
+  try { await db.execute(stmt); } catch { /* already exists */ }
 }
 
 console.log('Migration complete.');

@@ -70,6 +70,20 @@ export async function updateThumbnailUrl(id, thumbnailUrl) {
   });
 }
 
+export async function setOriginalThumbnailUrl(id, originalUrl) {
+  await db.execute({
+    sql:  'UPDATE projects SET original_thumbnail_url=? WHERE id=?',
+    args: [originalUrl, id],
+  });
+}
+
+export async function clearOriginalThumbnailUrl(id) {
+  await db.execute({
+    sql:  'UPDATE projects SET original_thumbnail_url=NULL WHERE id=?',
+    args: [id],
+  });
+}
+
 // ── FM Challenges ─────────────────────────────────────────────────────────────
 
 export async function createChallenge(data) {

@@ -5,7 +5,7 @@ import { slugify } from '../../lib/slugify.js';
 import { screenshotUrl } from '../../lib/screenshot.js';
 import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer, signedUrl } from '../../lib/cloudinary.js';
 import { getAllProjects, getProjectById } from '../../db/queries/projects.js';
-import { createProject, updateProject, deleteProject, updateThumbnailUrl } from '../../db/queries/admin.js';
+import { createProject, updateProject, deleteProject, updateThumbnailUrl, setOriginalThumbnailUrl, clearOriginalThumbnailUrl } from '../../db/queries/admin.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -87,10 +87,8 @@ router.get('/screenshot-preview', async (req, res) => {
   }
 });
 
-router.get('/:id/thumbnail-raw', async (req, res) => {
-  const project = await getProjectById(Number(req.params.id));
-  if (!project?.thumbnail_url) return res.status(404).end();
-  const url = resolveUrl(project.thumbnail_url);
+async function proxyImage(stored, res) {
+  const url = resolveUrl(stored);
   if (!url) return res.status(404).end();
   try {
     const upstream = await fetch(url);
@@ -102,6 +100,18 @@ router.get('/:id/thumbnail-raw', async (req, res) => {
   } catch {
     res.status(502).end();
   }
+}
+
+router.get('/:id/thumbnail-raw', async (req, res) => {
+  const project = await getProjectById(Number(req.params.id));
+  if (!project?.thumbnail_url) return res.status(404).end();
+  proxyImage(project.thumbnail_url, res);
+});
+
+router.get('/:id/original-thumbnail-raw', async (req, res) => {
+  const project = await getProjectById(Number(req.params.id));
+  if (!project?.original_thumbnail_url) return res.status(404).end();
+  proxyImage(project.original_thumbnail_url, res);
 });
 
 router.post('/:id/edit-thumbnail', upload.single('image'), async (req, res) => {
@@ -109,6 +119,9 @@ router.post('/:id/edit-thumbnail', upload.single('image'), async (req, res) => {
   const project = await getProjectById(id);
   if (!project || !req.file) return res.status(400).json({ error: 'bad request' });
   try {
+    if (!project.original_thumbnail_url && project.thumbnail_url) {
+      await setOriginalThumbnailUrl(id, project.thumbnail_url);
+    }
     const publicId = await uploadBuffer(req.file.buffer, project.slug, 'thumbnail');
     await updateThumbnailUrl(id, publicId);
     res.json({ url: signedUrl(publicId) });
@@ -176,7 +189,8 @@ router.get('/:id/edit', async (req, res) => {
     activeNav: 'projects',
     flash: getFlash(req),
     project,
-    thumbnailPreview: resolveUrl(project.thumbnail_url),
+    thumbnailPreview:         resolveUrl(project.thumbnail_url),
+    hasOriginalThumbnail:     !!project.original_thumbnail_url,
     isEdit: true,
   });
 });
@@ -233,6 +247,7 @@ router.post('/:id/delete-thumbnail', async (req, res) => {
     features:      JSON.stringify(project.features),
     screenshots:   JSON.stringify(project.screenshots),
   });
+  await clearOriginalThumbnailUrl(id);
   res.redirect(`/admin/projects/${id}/edit?success=thumb-deleted`);
 });
 

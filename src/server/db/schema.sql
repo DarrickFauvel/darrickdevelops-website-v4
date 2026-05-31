@@ -10,8 +10,9 @@ CREATE TABLE IF NOT EXISTS projects (
   features      TEXT DEFAULT '[]',
   live_url      TEXT,
   repo_url      TEXT,
-  thumbnail_url TEXT,
-  screenshots   TEXT DEFAULT '[]',
+  thumbnail_url          TEXT,
+  original_thumbnail_url TEXT,
+  screenshots            TEXT DEFAULT '[]',
   status        TEXT DEFAULT 'live' CHECK (status IN ('live','in-progress','archived')),
   featured      INTEGER DEFAULT 0,
   created_at    TEXT DEFAULT (datetime('now'))
