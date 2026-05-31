@@ -85,7 +85,7 @@
     <legend class="form-fieldset__legend">Images</legend>
 
     <% if (it.thumbnailPreview) { %>
-    <div class="form-group">
+    <div class="form-group" id="js-thumb-section">
       <p class="form-label">Current thumbnail</p>
       <img id="js-thumb-preview" src="<%= it.thumbnailPreview %>" alt="Current thumbnail"
            style="max-width:16rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
@@ -247,27 +247,41 @@
       <p class="confirm-modal__body">This cannot be undone.</p>
       <div class="confirm-modal__actions">
         <button type="button" id="thumb-delete-cancel" class="btn btn--ghost btn--sm">Cancel</button>
-        <button
-          type="submit"
-          formaction="/admin/projects/<%= it.project.id %>/delete-thumbnail"
-          formmethod="POST"
-          formenctype="application/x-www-form-urlencoded"
-          class="btn btn--ghost btn--sm admin-btn-danger"
-        >Delete</button>
+        <button type="button" id="thumb-delete-confirm" class="btn btn--ghost btn--sm admin-btn-danger">Delete</button>
       </div>
     </div>
   </div>
   <script>
     {
-      const btn    = document.getElementById('js-delete-thumb-btn');
-      const modal  = document.getElementById('thumb-delete-modal');
-      const cancel = document.getElementById('thumb-delete-cancel');
-      const open   = () => { modal.hidden = false; cancel.focus(); };
-      const close  = () => { modal.hidden = true; };
+      const btn     = document.getElementById('js-delete-thumb-btn');
+      const modal   = document.getElementById('thumb-delete-modal');
+      const cancel  = document.getElementById('thumb-delete-cancel');
+      const confirm = document.getElementById('thumb-delete-confirm');
+      const section = document.getElementById('js-thumb-section');
+      const editorModal = document.getElementById('img-editor-modal');
+      const open  = () => { modal.hidden = false; cancel.focus(); };
+      const close = () => { modal.hidden = true; };
+
       btn.addEventListener('click', open);
       cancel.addEventListener('click', close);
       modal.querySelector('.confirm-modal__backdrop').addEventListener('click', close);
       document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
+
+      confirm.addEventListener('click', async () => {
+        confirm.disabled = true;
+        try {
+          const res = await fetch('/admin/projects/<%= it.project.id %>/delete-thumbnail', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+          });
+          if (!res.ok) throw new Error('Request failed');
+          modal.hidden = true;
+          section.remove();
+          if (editorModal) editorModal.remove();
+        } catch {
+          confirm.disabled = false;
+        }
+      });
     }
   </script>
   <% } %>

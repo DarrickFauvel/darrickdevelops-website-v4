@@ -237,7 +237,11 @@ router.post('/:id', upload.fields(screenshotFields), async (req, res) => {
 router.post('/:id/delete-thumbnail', async (req, res) => {
   const id      = Number(req.params.id);
   const project = await getProjectById(id);
-  if (!project) return res.redirect('/admin/projects?error=not-found');
+  if (!project) {
+    return req.accepts('json')
+      ? res.status(404).json({ error: 'not found' })
+      : res.redirect('/admin/projects?error=not-found');
+  }
   if (project.thumbnail_url && isCloudinaryId(project.thumbnail_url)) {
     await deleteAsset(project.thumbnail_url).catch(() => {});
   }
@@ -249,6 +253,7 @@ router.post('/:id/delete-thumbnail', async (req, res) => {
     screenshots:   JSON.stringify(project.screenshots),
   });
   await clearOriginalThumbnailUrl(id);
+  if (req.accepts('json')) return res.json({ ok: true });
   res.redirect(`/admin/projects/${id}/edit?success=thumb-deleted`);
 });
 
