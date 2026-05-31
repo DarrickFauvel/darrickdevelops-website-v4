@@ -87,8 +87,10 @@
     <% if (it.thumbnailPreview) { %>
     <div class="form-group" id="js-thumb-section">
       <p class="form-label">Current thumbnail</p>
-      <img id="js-thumb-preview" src="<%= it.thumbnailPreview %>" alt="Current thumbnail"
+      <div id="js-thumb-wrapper" class="card__image-frame" data-frame="<%= it.project.thumbnail_frame || '' %>"
            style="max-width:16rem;border-radius:var(--radius-sm);border:1px solid var(--color-border)">
+        <img id="js-thumb-preview" src="<%= it.thumbnailPreview %>" alt="Current thumbnail" class="card__image">
+      </div>
       <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap">
         <button type="button" id="js-edit-thumb-btn" class="btn btn--ghost btn--sm">Edit Image</button>
         <button type="button" id="js-delete-thumb-btn" class="btn btn--ghost btn--sm">Delete thumbnail</button>
@@ -206,7 +208,7 @@
         preview.dataset.state = 'loading';
         img.removeAttribute('src');
 
-        img.onload  = () => { preview.dataset.state = 'loaded'; };
+        img.onload  = () => { preview.dataset.state = 'loaded'; showEditBtn(preview, { url: img.src }); };
         img.onerror = () => { preview.dataset.state = 'error'; };
         img.src = '/admin/projects/screenshot-preview?url=' + encodeURIComponent(liveUrl) +
                   '&width=' + cb.dataset.width + '&height=' + cb.dataset.height;
@@ -229,14 +231,35 @@
           preview.dataset.state = 'loaded';
           img.onload = null;
           img.src = URL.createObjectURL(input.files[0]);
+          showEditBtn(preview, { file: input.files[0] });
         } else {
           filename.textContent = '';
           genCb.disabled = false;
           preview.hidden = true;
           img.src = '';
+          hideEditBtn(preview);
         }
       });
     });
+
+    function showEditBtn(preview, source) {
+      if (!document.getElementById('img-editor-modal')) return;
+      let btn = preview.querySelector('.js-edit-upload-hint');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn--ghost btn--sm js-edit-upload-hint';
+        btn.textContent = 'Edit & set as thumbnail';
+        btn.style.marginTop = 'var(--space-3)';
+        preview.appendChild(btn);
+      }
+      btn.onclick = () => document.dispatchEvent(
+        new CustomEvent('open-editor-with-source', { detail: source })
+      );
+    }
+    function hideEditBtn(preview) {
+      preview.querySelector('.js-edit-upload-hint')?.remove();
+    }
   </script>
 
   <% if (it.thumbnailPreview) { %>
@@ -294,7 +317,7 @@
   </div>
 </form>
 
-<% if (it.thumbnailPreview) { %>
+<% if (it.isEdit) { %>
 <div id="img-editor-modal" class="img-editor-modal" hidden>
   <div class="img-editor-modal__backdrop"></div>
   <div class="img-editor-modal__box">
@@ -340,11 +363,11 @@
 <script type="module">
   import { initImageEditor } from '/js/components/image-editor.js';
   initImageEditor({
-    projectId:       <%= it.project.id %>,
-    proxyUrl:        '/admin/projects/<%= it.project.id %>/thumbnail-raw',
+    projectId:        <%= it.project.id %>,
+    proxyUrl:         '<%= it.thumbnailPreview ? "/admin/projects/" + it.project.id + "/thumbnail-raw" : "" %>',
     originalProxyUrl: '<%= it.hasOriginalThumbnail ? "/admin/projects/" + it.project.id + "/original-thumbnail-raw" : "" %>',
-    previewImgId:    'js-thumb-preview',
-    openBtnId:       'js-edit-thumb-btn',
+    previewImgId:     'js-thumb-preview',
+    openBtnId:        '<%= it.thumbnailPreview ? "js-edit-thumb-btn" : "" %>',
   });
 </script>
 <% } %>

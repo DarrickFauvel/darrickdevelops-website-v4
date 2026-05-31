@@ -207,8 +207,8 @@ function drawExport(ctx, img, state, w, h) {
 }
 
 export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, previewImgId, openBtnId }) {
-  const openBtn      = document.getElementById(openBtnId);
-  const previewImg   = document.getElementById(previewImgId);
+  const openBtn      = openBtnId  ? document.getElementById(openBtnId)  : null;
+  const previewImg   = previewImgId ? document.getElementById(previewImgId) : null;
   const modal        = document.getElementById('img-editor-modal');
   const backdrop     = modal.querySelector('.img-editor-modal__backdrop');
   const canvas       = document.getElementById('img-editor-canvas');
@@ -230,11 +230,12 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
   canvas.width  = PREVIEW_W;
   canvas.height = PREVIEW_H;
 
-  let img       = null;
-  let state     = { offsetX: 0, offsetY: 0, zoomExp: 0, scale: 1, rotation: 0, frame: 'none' };
-  let baseScale = 1;
-  let dragging  = false;
-  let dragStart = { x: 0, y: 0, ox: 0, oy: 0 };
+  let img             = null;
+  let state           = { offsetX: 0, offsetY: 0, zoomExp: 0, scale: 1, rotation: 0, frame: 'none' };
+  let baseScale       = 1;
+  let dragging        = false;
+  let dragStart       = { x: 0, y: 0, ox: 0, oy: 0 };
+  let loadedFromUpload = false; // true when opened from a local file/url (not existing thumbnail)
 
   function updateDisplay() {
     const pct = Math.round((state.scale / baseScale) * 100);
@@ -283,8 +284,25 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
   }
 
   function openModal() {
+    if (!proxyUrl) return;
+    loadedFromUpload = false;
     loadImage(proxyUrl);
     useOriginalBtn.hidden = !originalProxyUrl;
+    modal.hidden = false;
+    modal.classList.remove('is-closing');
+    document.body.style.overflow = 'hidden';
+    hideStatus();
+  }
+
+  function openWithSource(source) {
+    loadedFromUpload = true;
+    const url = source instanceof File ? URL.createObjectURL(source) : source;
+    loadImage(url);
+    // Reset frame selection to none
+    modal.querySelectorAll('[data-frame]').forEach(b => b.classList.remove('is-active'));
+    modal.querySelector('[data-frame="none"]').classList.add('is-active');
+    state.frame = 'none';
+    useOriginalBtn.hidden = true;
     modal.hidden = false;
     modal.classList.remove('is-closing');
     document.body.style.overflow = 'hidden';
@@ -331,7 +349,15 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
       const res = await fetch(`/admin/projects/${projectId}/edit-thumbnail`, { method: 'POST', body: form });
       if (!res.ok) throw new Error(`Server error ${res.status}`);
       const { url } = await res.json();
-      previewImg.src = url;
+      if (loadedFromUpload) {
+        location.reload();
+        return;
+      }
+      if (previewImg) {
+        previewImg.src = url;
+        const wrapper = document.getElementById('js-thumb-wrapper');
+        if (wrapper) wrapper.dataset.frame = state.frame === 'none' ? '' : state.frame;
+      }
       closeModal();
     } catch (err) {
       showStatus('Save failed: ' + err.message, true);
@@ -410,7 +436,7 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
 
   // ── Open / close ──────────────────────────────────────────────────────────
 
-  openBtn.addEventListener('click', openModal);
+  if (openBtn) openBtn.addEventListener('click', openModal);
   cancelBtn.addEventListener('click', closeModal);
   document.getElementById('img-editor-close').addEventListener('click', closeModal);
   backdrop.addEventListener('click', closeModal);
@@ -420,4 +446,6 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
   if (useOriginalBtn && originalProxyUrl) {
     useOriginalBtn.addEventListener('click', () => { hideStatus(); loadImage(originalProxyUrl); });
   }
+
+  document.addEventListener('open-editor-with-source', e => openWithSource(e.detail.file || e.detail.url));
 }
