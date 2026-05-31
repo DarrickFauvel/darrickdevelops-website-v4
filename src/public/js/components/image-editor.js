@@ -280,7 +280,10 @@ export function initImageEditor({ projectId, proxyUrl, originalProxyUrl, preview
     img.crossOrigin = 'anonymous';
     img.onload = () => { resetState(); redraw(); };
     img.onerror = () => showStatus('Failed to load image.', true);
-    img.src = url + '?t=' + Date.now();
+    // Blob URLs don't support query params; other URLs get a cache-buster
+    img.src = url.startsWith('blob:')
+      ? url
+      : url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
   }
 
   function openModal() {
