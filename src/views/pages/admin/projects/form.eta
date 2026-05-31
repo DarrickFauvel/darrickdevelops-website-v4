@@ -97,13 +97,7 @@
     <% } %>
 
     <div class="form-group">
-      <div class="screenshot-gen__header">
-        <p class="form-label">Generate screenshots from Live URL</p>
-        <label class="form-checkbox-label">
-          <input type="checkbox" id="js-frame-toggle" class="form-checkbox">
-          Device frame
-        </label>
-      </div>
+      <p class="form-label">Generate screenshots from Live URL</p>
       <div class="screenshot-gen" id="screenshot-gen">
         <div class="screenshot-gen__option">
           <div class="screenshot-gen__controls">
@@ -217,10 +211,6 @@
         img.src = '/admin/projects/screenshot-preview?url=' + encodeURIComponent(liveUrl) +
                   '&width=' + cb.dataset.width + '&height=' + cb.dataset.height;
       });
-    });
-
-    document.getElementById('js-frame-toggle').addEventListener('change', function () {
-      document.getElementById('screenshot-gen').classList.toggle('screenshot-gen--framed', this.checked);
     });
 
     document.querySelectorAll('.js-upload-input').forEach(input => {
