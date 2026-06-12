@@ -5,7 +5,7 @@ import { slugify } from '../../lib/slugify.js';
 import { screenshotUrl } from '../../lib/screenshot.js';
 import { hydrateProject, resolveUrl, isCloudinaryId, deleteAsset, uploadBuffer, signedUrl } from '../../lib/cloudinary.js';
 import { getAllProjects, getProjectById } from '../../db/queries/projects.js';
-import { createProject, updateProject, deleteProject, updateThumbnailUrl, setOriginalThumbnailUrl, clearOriginalThumbnailUrl, updateThumbnailFrame } from '../../db/queries/admin.js';
+import { createProject, updateProject, deleteProject, updateThumbnailUrl, setOriginalThumbnailUrl, clearOriginalThumbnailUrl, updateThumbnailTransform } from '../../db/queries/admin.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -117,15 +117,25 @@ router.get('/:id/original-thumbnail-raw', async (req, res) => {
 router.post('/:id/edit-thumbnail', upload.single('image'), async (req, res) => {
   const id      = Number(req.params.id);
   const project = await getProjectById(id);
-  if (!project || !req.file) return res.status(400).json({ error: 'bad request' });
+  if (!project) return res.status(400).json({ error: 'bad request' });
   try {
-    if (!project.original_thumbnail_url && project.thumbnail_url) {
-      await setOriginalThumbnailUrl(id, project.thumbnail_url);
+    let publicId = project.thumbnail_url;
+    if (req.file) {
+      // New image upload — preserve the original before overwriting
+      if (!project.original_thumbnail_url && project.thumbnail_url) {
+        await setOriginalThumbnailUrl(id, project.thumbnail_url);
+      }
+      publicId = await uploadBuffer(req.file.buffer, project.slug, 'thumbnail', req.file.mimetype);
+      await updateThumbnailUrl(id, publicId);
     }
-    const publicId = await uploadBuffer(req.file.buffer, project.slug, 'thumbnail');
-    await updateThumbnailUrl(id, publicId);
-    await updateThumbnailFrame(id, req.body?.frame ?? 'none');
-    res.json({ url: signedUrl(publicId) });
+    await updateThumbnailTransform(
+      id,
+      Number(req.body?.offsetX ?? 0),
+      Number(req.body?.offsetY ?? 0),
+      Number(req.body?.zoomExp ?? 0),
+      Number(req.body?.rotation ?? 0),
+    );
+    res.json({ url: publicId ? signedUrl(publicId) : null });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

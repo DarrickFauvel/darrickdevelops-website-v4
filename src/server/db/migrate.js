@@ -20,6 +20,10 @@ for (const stmt of schema.split(';').map(s => s.trim()).filter(Boolean)) {
 const alterations = [
   'ALTER TABLE projects ADD COLUMN original_thumbnail_url TEXT',
   'ALTER TABLE projects ADD COLUMN thumbnail_frame TEXT',
+  'ALTER TABLE projects ADD COLUMN thumbnail_offset_x REAL',
+  'ALTER TABLE projects ADD COLUMN thumbnail_offset_y REAL',
+  'ALTER TABLE projects ADD COLUMN thumbnail_zoom_exp REAL',
+  'ALTER TABLE projects ADD COLUMN thumbnail_rotation REAL',
 ];
 for (const stmt of alterations) {
   try { await db.execute(stmt); } catch { /* already exists */ }
