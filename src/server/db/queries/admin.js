@@ -91,6 +91,13 @@ export async function updateThumbnailFrame(id, frame) {
   });
 }
 
+export async function updateThumbnailTransform(id, offsetX, offsetY, zoomExp, rotation) {
+  await db.execute({
+    sql:  'UPDATE projects SET thumbnail_offset_x=?,thumbnail_offset_y=?,thumbnail_zoom_exp=?,thumbnail_rotation=? WHERE id=?',
+    args: [offsetX, offsetY, zoomExp, rotation, id],
+  });
+}
+
 // ── FM Challenges ─────────────────────────────────────────────────────────────
 
 export async function createChallenge(data) {

@@ -21,7 +21,7 @@ export function resolveUrl(stored) {
 
 export const UPLOAD_FOLDER = 'projects';
 
-export async function uploadBuffer(buffer, slug, viewport) {
+export async function uploadBuffer(buffer, slug, viewport, mimeType = 'image/png') {
   const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
   if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
     throw new Error('Cloudinary credentials not configured');
@@ -34,7 +34,7 @@ export async function uploadBuffer(buffer, slug, viewport) {
   const signature = createHash('sha256').update(sigString).digest('hex');
 
   const form = new FormData();
-  form.append('file',       new Blob([buffer], { type: 'image/png' }), `${publicId}.png`);
+  form.append('file',       new Blob([buffer], { type: mimeType }), `${publicId}.png`);
   form.append('public_id',  publicId);
   form.append('folder',     folder);
   form.append('type',       'private');
