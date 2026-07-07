@@ -1,4 +1,14 @@
 @layer base {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 200ms;
+    animation-timing-function: ease;
+  }
+
+  *, *::before, *::after {
+    transition: background-color var(--ease-base), border-color var(--ease-base), color var(--ease-base);
+  }
+
   body {
     font-family: var(--font-sans);
     font-size: var(--text-base);

@@ -124,9 +124,8 @@
   }
 
   .admin-topbar__theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     background: none;
     border: none;
     cursor: pointer;
@@ -141,15 +140,20 @@
   }
 
   /* Theme toggle icons (shared with main site) */
-  .theme-icon--sun  { display: none; }
-  .theme-icon--moon { display: block; }
+  .theme-icon {
+    grid-area: 1 / 1;
+    transition: opacity var(--ease-base), transform var(--ease-base);
+  }
 
-  [data-theme="dark"] .theme-icon--sun  { display: block; }
-  [data-theme="dark"] .theme-icon--moon { display: none;  }
+  .theme-icon--sun  { opacity: 0; transform: rotate(-20deg) scale(0.7); }
+  .theme-icon--moon { opacity: 1; transform: rotate(0deg)   scale(1);   }
+
+  [data-theme="dark"] .theme-icon--sun  { opacity: 1; transform: rotate(0deg)  scale(1);   }
+  [data-theme="dark"] .theme-icon--moon { opacity: 0; transform: rotate(20deg) scale(0.7); }
 
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .theme-icon--sun  { display: block; }
-    :root:not([data-theme="light"]) .theme-icon--moon { display: none;  }
+    :root:not([data-theme="light"]) .theme-icon--sun  { opacity: 1; transform: rotate(0deg)  scale(1);   }
+    :root:not([data-theme="light"]) .theme-icon--moon { opacity: 0; transform: rotate(20deg) scale(0.7); }
   }
 
   /* ── Mobile menu toggle ────────────────────────────────────────────────────── */

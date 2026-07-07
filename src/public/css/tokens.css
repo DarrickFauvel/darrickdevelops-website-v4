@@ -1,6 +1,12 @@
 /* Declare layer order once — all other CSS files participate in their layer */
 @layer reset, tokens, base, layout, components;
 
+/* Cross-document view transitions between page navigations.
+   No-op (plain navigation) in browsers that don't support it yet. */
+@view-transition {
+  navigation: auto;
+}
+
 @layer tokens {
   :root {
     /* Adapts to OS preference; [data-theme] overrides below */
@@ -78,6 +84,7 @@
     /* layout */
     --container-max:     72rem;
     --container-padding: clamp(var(--space-4), 5vw, var(--space-8));
+    --nav-height:        4.5rem;
   }
 
   /* Manual overrides — come after :root so they win on equal specificity */
