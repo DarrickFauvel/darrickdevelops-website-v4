@@ -9,16 +9,22 @@ class SiteNav extends HTMLElement {
     const closeBtn = modal?.querySelector('.qr-modal__close');
 
     if (toggle && links) {
+      const closeMenu = () => {
+        links.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', false);
+      };
+
       toggle.addEventListener('click', () => {
         const open = links.classList.toggle('is-open');
         toggle.setAttribute('aria-expanded', open);
       });
 
+      links.addEventListener('click', (e) => {
+        if (e.target.closest('a')) closeMenu();
+      });
+
       document.addEventListener('click', (e) => {
-        if (!this.contains(e.target)) {
-          links.classList.remove('is-open');
-          toggle.setAttribute('aria-expanded', false);
-        }
+        if (!this.contains(e.target)) closeMenu();
       });
     }
 

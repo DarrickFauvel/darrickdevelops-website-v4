@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { db } from './client.js';
 
 await db.execute(`

@@ -7,6 +7,19 @@
     hanging-punctuation: first last;
   }
 
+  /* In-page scrolling (e.g. nav "Contact" anchor) on the landing page only.
+     scroll-padding-top clears the sticky nav so the section lines up the same
+     way it does when landing fresh on /projects or /blog. */
+  html:has(#contact) {
+    scroll-padding-top: var(--nav-height);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(#contact) {
+      scroll-behavior: smooth;
+    }
+  }
+
   body {
     min-height: 100dvh;
     line-height: 1.6;
@@ -35,6 +48,12 @@
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
     }
   }
 }
